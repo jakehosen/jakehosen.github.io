@@ -1,12 +1,8 @@
 ---
 layout: post
-title: What's Jekyll?
+title: About My Research
 ---
 
-[Jekyll](http://jekyllrb.com) is a static site generator, an open-source tool for creating simple yet powerful websites of all shapes and sizes. From [the project's readme](https://github.com/mojombo/jekyll/blob/master/README.markdown):
+<img align="left" src="./files/jake_field.jpg" height="300" style="margin:10px 10px"> As a freshwater scientist studying microbial ecology and carbon biogeochemistry, I use ecological principles to link microbes to macro-scale environmental processes. My research of inland waters uses cutting-edge research tools and computational approaches to investigate fundamental ecological questions. Ecological theory offers a rich framework for ecosystem science: now we have the equipment and analytical power to capture complexity in natural systems that was previously impossible. By coupling these data with modern informatics, I build comprehensive models that use ideas from across disciplines to track the flow of resources through the environment.
 
-  > Jekyll is a simple, blog aware, static site generator. It takes a template directory [...] and spits out a complete, static website suitable for serving with Apache or your favorite web server. This is also the engine behind GitHub Pages, which you can use to host your project’s page or blog right here from GitHub.
-
-It's an immensely useful tool and one we encourage you to use here with Hyde.
-
-Find out more by [visiting the project on GitHub](https://github.com/mojombo/jekyll).
+Find my articles on Research Gate and Google Scholar and follow me on Twitter for the latest updates.
