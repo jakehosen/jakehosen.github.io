@@ -9,7 +9,7 @@ relative_permalinks: true
 # Setup
 title:            Jake Hosen
 tagline:          'Freshwater Microbial Ecology & Biogeochemistry'
-description:      '<p>Postdoctoral Associate</p> <p>Raymond Lab: Yale School of Forestry & Environmental Studies'
+description:      '<p>Postdoctoral Associate</p> <p><a href="http://environment.yale.edu/raymond-lab/">Raymond Lab</a>:<br> Yale School of Forestry & Environmental Studies</p>'
 url:              http://jakehosen.github.io
 baseurl:          /
 
