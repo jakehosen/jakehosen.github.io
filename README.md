@@ -1,68 +1,118 @@
-## The "What ?" and the "Why ?"
+# Hyde
 
-**Carte** is a simple Jekyll based documentation website for APIs. It is designed as a boilerplate to build your own documentation and is heavily inspired from [Swagger](http://swagger.wordnik.com/) and [I/O docs](http://www.mashery.com/product/io-docs). Fork it, add specifications for your APIs calls and customize the theme. <small>Go ahead, see if we care.</small>
+Hyde is a brazen two-column [Jekyll](http://jekyllrb.com) theme that pairs a prominent sidebar with uncomplicated content. It's based on [Poole](http://getpoole.com), the Jekyll butler.
 
-We built **Carte** because the existing options (Swagger and the likes) were trying to do too much and did not match our needs:
+![Hyde screenshot](https://f.cloud.github.com/assets/98681/1831228/42af6c6a-7384-11e3-98fb-e0b923ee0468.png)
 
-1. Most of our API calls are sending JSON objects, as opposed to a series of parameters,
-1. Being able to query the real API is nice, but running anything but `GET` calls can get tricky ("What do you mean I deleted my stuff? I was just trying out the API calls!"),
-1. Overall, setting up a separate server for what really requires a good static documentation seemed overkill.
 
-The real value of **Carte** is its structure for describing APIs, not its underlying technical stack (or lack-thereof). In a nutshell; **we built a static template for your API documentation, feel free to re-use it**.
+## Contents
 
-## Install
+- [Usage](#usage)
+- [Options](#options)
+  - [Sidebar menu](#sidebar-menu)
+  - [Sticky sidebar content](#sticky-sidebar-content)
+  - [Themes](#themes)
+  - [Reverse layout](#reverse-layout)
+- [Development](#development)
+- [Author](#author)
+- [License](#license)
 
-It' Jekyll god dammit:
 
-1. Clone this repository on your local,
-1. [Install Jekyll](https://github.com/mojombo/jekyll/wiki/install),
-1. Go at the root of the repository and run ```jekyll serve --watch```,
-1. Go to http://localhost:4000,
-1. [Great success! High five!](http://www.youtube.com/watch?v=wWWyJwHQ-4E)
+## Usage
 
-## How to...
+Hyde is a theme built on top of [Poole](https://github.com/poole/poole), which provides a fully furnished Jekyll setup—just download and start the Jekyll server. See [the Poole usage guidelines](https://github.com/poole/poole#usage) for how to install and use Jekyll.
 
-### Adding a new API call
 
-You can add a new API call by simply adding a new post in the `_posts` folder. Jekyll by default forces you to specify a date in the file path: it makes us sad pandas too, but you'll have to stick to this format. You can use dates to control the order in which API calls are displayed in the interface.
+## Options
 
-Each API call can define a few values in its YAML header:
+Hyde includes some customizable options, typically applied via classes on the `<body>` element.
 
-Variable | Mandatory | Default | Description
---- | --- | --- | ---
-``title`` | Y | - | A short description of what that calls does.
-``path`` | N | - | The URL for the API call, including potential parameters.
-``type`` | N | - | Set it to `PUT`, `GET`, `POST`, `DELETE` or nothing (for parts of your documentation that do not relate to an actual API call).
 
-A typical header:
+### Sidebar menu
+
+Create a list of nav links in the sidebar by assigning each Jekyll page the correct layout in the page's [front-matter](http://jekyllrb.com/docs/frontmatter/).
 
 ```
 ---
-path: '/stuff/:id'
-title: 'Delete a thing'
-type: 'DELETE'
-
-layout: nil
+layout: page
+title: About
 ---
 ```
 
-We then describe the request and response (or whatever else you wish to talk about) in the body of our post. Check the placeholders present in the `_posts` folder to get an idea of what it can look like.
+**Why require a specific layout?** Jekyll will return *all* pages, including the `atom.xml`, and with an alphabetical sort order. To ensure the first link is *Home*, we exclude the `index.html` page from this list by specifying the `page` layout.
 
-### Grouping calls
 
-Adding a category to your YAML header will allows you to group methods in the navigation. It is particularly helpful as you start having a lot of methods and need to organize them. For example:
+### Sticky sidebar content
 
+By default Hyde ships with a sidebar that affixes it's content to the bottom of the sidebar. You can optionally disable this by removing the `.sidebar-sticky` class from the sidebar's `.container`. Sidebar content will then normally flow from top to bottom.
+
+```html
+<!-- Default sidebar -->
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    ...
+  </div>
+</div>
+
+<!-- Modified sidebar -->
+<div class="sidebar">
+  <div class="container">
+    ...
+  </div>
+</div>
 ```
----
-category: Stuff
-path: '/stuff/:id'
-title: 'Delete a thing'
-type: 'DELETE'
 
-layout: nil
----
+
+### Themes
+
+Hyde ships with eight optional themes based on the [base16 color scheme](https://github.com/chriskempson/base16). Apply a theme to change the color scheme (mostly applies to sidebar and links).
+
+![Hyde in red](https://f.cloud.github.com/assets/98681/1831229/42b0b354-7384-11e3-8462-31b8df193fe5.png)
+
+There are eight themes available at this time.
+
+![Hyde theme classes](https://f.cloud.github.com/assets/98681/1817044/e5b0ec06-6f68-11e3-83d7-acd1942797a1.png)
+
+To use a theme, add anyone of the available theme classes to the `<body>` element in the `default.html` layout, like so:
+
+```html
+<body class="theme-base-08">
+  ...
+</body>
 ```
 
-### Edit the design
+To create your own theme, look to the Themes section of [included CSS file](https://github.com/poole/hyde/blob/master/public/css/hyde.css). Copy any existing theme (they're only a few lines of CSS), rename it, and change the provided colors.
 
-The default UI is mostly described through the `css/style.css` file and a couple short jQuery scripts in the `/_layouts/default.html` layout. Hack it to oblivion.
+### Reverse layout
+
+![Hyde with reverse layout](https://f.cloud.github.com/assets/98681/1831230/42b0d3ac-7384-11e3-8d54-2065afd03f9e.png)
+
+Hyde's page orientation can be reversed with a single class.
+
+```html
+<body class="layout-reverse">
+  ...
+</body>
+```
+
+
+## Development
+
+Hyde has two branches, but only one is used for active development.
+
+- `master` for development.  **All pull requests should be submitted against `master`.**
+- `gh-pages` for our hosted site, which includes our analytics tracking code. **Please avoid using this branch.**
+
+
+## Author
+
+**Mark Otto**
+- <https://github.com/mdo>
+- <https://twitter.com/mdo>
+
+
+## License
+
+Open sourced under the [MIT license](LICENSE.md).
+
+<3
