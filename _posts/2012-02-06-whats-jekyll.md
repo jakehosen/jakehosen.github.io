@@ -5,4 +5,4 @@ title: About My Research
 
 <img align="left" src="./files/jake_field.jpg" height="300" style="margin:10px 10px"> As a freshwater scientist studying microbial ecology and carbon biogeochemistry, I use ecological principles to link microbes to macro-scale environmental processes. My research of inland waters uses cutting-edge research tools and computational approaches to investigate fundamental ecological questions. Ecological theory offers a rich framework for ecosystem science: now we have the equipment and analytical power to capture complexity in natural systems that was previously impossible. By coupling these data with modern informatics, I build comprehensive models that use ideas from across disciplines to track the flow of resources through the environment.
 
-Find my articles on Research Gate and Google Scholar and follow me on Twitter for the latest updates.
+Find my articles on [Research Gate](http://www.researchgate.net/profile/Jacob_Hosen) and [Google Scholar](https://scholar.google.com/citations?user=vsRFxUEAAAAJ&hl=en) and follow me on [Twitter](https://twitter.com/jakehosen) for the latest updates.
