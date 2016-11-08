@@ -6,14 +6,15 @@ output: html_document
 ## Farmington CDOM
 
 ```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_cdom,group="farm")  %>% 
+dygraph(farm_cdom1,group="farm",ylab="CDOM QSU")  %>% 
   dyRangeSelector()
 ```
+
 
 ## Farmington Turbidity
 
 ```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_turb,group="farm")  %>% 
+dygraph(farm_turb,group="farm",ylab="NTU")  %>% 
     dyRangeSelector()
 ```
 
@@ -21,7 +22,7 @@ dygraph(farm_turb,group="farm")  %>%
 ## Farmington Conductivity
 
 ```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_cond,group="farm")  %>% 
+dygraph(farm_cond,group="farm",ylab="uS/cm")  %>% 
     dyRangeSelector()
 ```
 
@@ -29,7 +30,7 @@ dygraph(farm_cond,group="farm")  %>%
 ## Farmington Discharge
 
 ```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_dis,group="farm")  %>% 
+dygraph(farm_dis,group="farm",ylab="CFS/Sec")  %>% 
     dyRangeSelector()
 ```
 
