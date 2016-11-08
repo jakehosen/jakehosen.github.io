@@ -20,15 +20,16 @@ output: html_document
 <div class="col2">
  
 ```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
-dygraph(farm_cdom1,group="farm",ylab="CDOM (QSU)",width=450,height=300)  %>% 
+dygraph(farm_cdom1,group="farm",ylab="CDOM (QSU)",width=450,height=280)  %>% 
     dyRangeSelector()  %>% 
-	 dyOptions(drawGrid = FALSE,rightGap=25) %>% 
+	 dyOptions(drawGrid = FALSE) %>% 
   dyCrosshair(direction = "vertical")
 ```
  
 ```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
-dygraph(farm_turb,group="farm",ylab="Turbidity (NTU)",width=450,height=300)  %>% 
+dygraph(farm_turb,group="farm",ylab="Turbidity (NTU)",width=450,height=280)  %>% 
     dyRangeSelector()  %>% 
+	  dyAxis("y", label = "Turbidity (NTU)", valueRange = c(0, 1000)) %>%
 	 dyOptions(drawGrid = FALSE) %>% 
   dyCrosshair(direction = "vertical")
 ```
@@ -40,7 +41,7 @@ dygraph(farm_turb,group="farm",ylab="Turbidity (NTU)",width=450,height=300)  %>%
 ```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
 dygraph(farm_cond,group="farm",ylab="Conductivity (uS/cm)",width=450,height=300)  %>% 
     dyRangeSelector()  %>% 
-	 dyOptions(drawGrid = FALSE,rightGap=25) %>% 
+	 dyOptions(drawGrid = FALSE) %>% 
   dyCrosshair(direction = "vertical")
 ```
  
