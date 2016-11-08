@@ -1,0 +1,49 @@
+---
+title: "Farmington Sonde Data"
+output: html_document
+---
+
+## Farmington CDOM
+
+```{r, fig.width=10, fig.height=4.3,echo=FALSE}
+dygraph(farm_cdom,group="farm")  %>% 
+  dyRangeSelector()
+```
+
+## Farmington Turbidity
+
+```{r, fig.width=10, fig.height=4.3,echo=FALSE}
+dygraph(farm_turb,group="farm")  %>% 
+    dyRangeSelector()
+```
+
+
+## Farmington Conductivity
+
+```{r, fig.width=10, fig.height=4.3,echo=FALSE}
+dygraph(farm_cond,group="farm")  %>% 
+    dyRangeSelector()
+```
+
+
+## Farmington Discharge
+
+```{r, fig.width=10, fig.height=4.3,echo=FALSE}
+dygraph(farm_dis,group="farm")  %>% 
+    dyRangeSelector()
+```
+
+
+## Farmington Temperature
+
+```{r, fig.width=10, fig.height=4.3,echo=FALSE}
+dygraph(farm_temp,group="farm")  %>% 
+    dyRangeSelector()
+```
+
+## Farmington Dissolved Oxygen
+
+```{r, fig.width=10, fig.height=4.3,echo=FALSE}
+dygraph(farm_do,group="farm")  %>% 
+    dyRangeSelector()
+```
