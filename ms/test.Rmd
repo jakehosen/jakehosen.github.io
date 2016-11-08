@@ -1,0 +1,11 @@
+``{r two-column, results='asis', echo=FALSE, out.extra=''}
+library(knitr)
+cat("<table class='container'><tr>")
+cat("<td>")
+plot( rnorm(10) )
+cat("</td>")
+cat("<td>")
+kable( rnorm(10), format="html" )
+cat("</td>")
+cat("</tr></table>")
+```

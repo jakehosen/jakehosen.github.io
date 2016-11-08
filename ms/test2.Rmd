@@ -1,0 +1,52 @@
+<style>
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+section {
+    width: 100%;
+    min-height: 100%;
+    display:table;
+    height:inherit;
+}
+.row {
+    width: 100%;
+    height: 100%;
+    display:table-row;
+    background: #ddd;
+}
+.col-left, .col-right {
+    width: 50%;
+    display: table-cell;
+    vertical-align: middle;
+}
+.col-left {
+    background: MidnightBlue
+}
+.col-right {
+    background: ForestGreen;
+    text-align: center;
+}
+}
+</style>
+
+---
+output: html_document
+---
+
+
+    <div class="row">
+        <div class="col-left">
+I should be vertically aligned in the middle...<br><br>And so should the image on the right...
+
+
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="content">
+                <img src="https://cdn4.iconfinder.com/data/icons/miu-flat-social/60/stackoverflow-128.png">
+            </div>
+        </div>
+    </div>

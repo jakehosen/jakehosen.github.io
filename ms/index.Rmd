@@ -1,50 +1,53 @@
+<style>
+  .col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 200px; /* chrome, safari */
+    -moz-columns: 2 200px;    /* firefox */
+    vertical-align: middle;
+  }
+  .col3 {
+    columns: 3 100px;
+    -webkit-columns: 3 100px;
+    -moz-columns: 3 100px;
+  }
+</style>
+
 ---
-title: "Farmington Sonde Data"
+title: Farmington at Tariffville Data
 output: html_document
 ---
 
-## Farmington CDOM
-
-```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_cdom1,group="farm",ylab="CDOM QSU")  %>% 
-  dyRangeSelector()
+<div class="col2">
+ 
+```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
+dygraph(farm_cdom1,group="farm",ylab="CDOM (QSU)",width=450,height=300)  %>% 
+    dyRangeSelector()  %>% 
+	 dyOptions(drawGrid = FALSE,rightGap=25) %>% 
+  dyCrosshair(direction = "vertical")
 ```
-
-
-## Farmington Turbidity
-
-```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_turb,group="farm",ylab="NTU")  %>% 
-    dyRangeSelector()
+ 
+```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
+dygraph(farm_turb,group="farm",ylab="Turbidity (NTU)",width=450,height=300)  %>% 
+    dyRangeSelector()  %>% 
+	 dyOptions(drawGrid = FALSE) %>% 
+  dyCrosshair(direction = "vertical")
 ```
+</div>
 
 
-## Farmington Conductivity
-
-```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_cond,group="farm",ylab="uS/cm")  %>% 
-    dyRangeSelector()
+<div class="col2">
+ 
+```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
+dygraph(farm_cond,group="farm",ylab="Conductivity (uS/cm)",width=450,height=300)  %>% 
+    dyRangeSelector()  %>% 
+	 dyOptions(drawGrid = FALSE,rightGap=25) %>% 
+  dyCrosshair(direction = "vertical")
 ```
-
-
-## Farmington Discharge
-
-```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_dis,group="farm",ylab="CFS/Sec")  %>% 
-    dyRangeSelector()
+ 
+```{r, fig.width=4, fig.height=4.3,echo=FALSE,out.extra='style="float:right"'}
+dygraph(farm_dis,group="farm",ylab="Discharge (CFS/sec)",width=450,height=300)  %>% 
+    dyRangeSelector()  %>% 
+	 dyOptions(drawGrid = FALSE) %>% 
+  dyCrosshair(direction = "vertical")
 ```
-
-
-## Farmington Temperature
-
-```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_temp,group="farm")  %>% 
-    dyRangeSelector()
-```
-
-## Farmington Dissolved Oxygen
-
-```{r, fig.width=10, fig.height=4.3,echo=FALSE}
-dygraph(farm_do,group="farm")  %>% 
-    dyRangeSelector()
-```
+</div>
