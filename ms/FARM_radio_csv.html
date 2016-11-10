@@ -62,6 +62,18 @@
         g.setVisibility(parseInt(el.id), el.checked);
         setStatus();
       }
+
+ var sync = Dygraph.synchronize(g);
+
+ function update() {
+     var zoom = document.getElementById('chk-zoom').checked;
+     var selection = document.getElementById('chk-selection').checked;
+     sync.detach();
+     sync = Dygraph.synchronize(f, {
+     zoom: zoom,
+     selection: selection
+        });
+      }
     </script>
 
     <div id="div_f" style="width:600px; height:200px;"></div>
@@ -138,6 +150,17 @@
         f.setVisibility(parseInt(el.id), el.checked);
         setStatus();
 		
+ var sync = Dygraph.synchronize(f);
+
+	    function update() {
+	        var zoom = document.getElementById('chk-zoom').checked;
+	        var selection = document.getElementById('chk-selection').checked;
+	        sync.detach();
+	        sync = Dygraph.synchronize(f, {
+	        zoom: zoom,
+	        selection: selection
+	           });
+	         }
 		
       }
 	  
