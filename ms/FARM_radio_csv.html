@@ -43,6 +43,25 @@
 
 
     <script type="text/javascript">
+	
+	window.update = function() {
+	    var chk = document.getElementById('chk-sync').checked;
+    
+	    if(chk) {
+	        sync = Dygraph.synchronize(g,f);
+	    }
+	    else {
+	        sync.detach();
+		    for (i = 0; i < 3; ++i) {
+				gs[i].updateOptions({
+	                dateWindow: null,
+				    valueRange: null
+			    });
+	        }	
+	    }
+	}
+	
+	
       g = new Dygraph(
             document.getElementById("div_g"),
 "farm_sonde_dygraph_excel.csv",
@@ -63,17 +82,6 @@
         setStatus();
       }
 
- var sync = Dygraph.synchronize(g);
-
- function update() {
-     var zoom = document.getElementById('chk-zoom').checked;
-     var selection = document.getElementById('chk-selection').checked;
-     sync.detach();
-     sync = Dygraph.synchronize(f, {
-     zoom: zoom,
-     selection: selection
-        });
-      }
     </script>
 
     <div id="div_f" style="width:600px; height:200px;"></div>
@@ -166,6 +174,22 @@
 	  
 	
     </script>
+
+
+<script>
+	  var sync = Dygraph.synchronize(f,g);
+
+	  function update() {
+	      var zoom = document.getElementById('chk-zoom').checked;
+	      var selection = document.getElementById('chk-selection').checked;
+	      sync.detach();
+	      sync = Dygraph.synchronize(f,g, {
+	      zoom: zoom,
+	      selection: selection
+	         });
+	       }
+	  
+</script>
 
       <p>
         Synchronize what?
