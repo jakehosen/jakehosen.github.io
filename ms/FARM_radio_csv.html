@@ -72,23 +72,7 @@
               drawYGrid: false,
 	 			drawPoints: true,
 	  			strokeWidth: 0,
-		 	pointSize: 3,
-     highlightCallback: function(e, x, pts) {
-            for (var i = 0; i < pts.length; i++) {
-              var y = pts[i].canvasy;
-              lines[i].style.visibility = "visible";
-              lines[i].style.top = y + "px";
-              if (i == 0) xline.style.left = pts[i].canvasx + "px";
-            }
-            xline.style.visibility = "visible";
-          },
-
-          unhighlightCallback: function(e) {
-            for (var i = 0; i < 2; i++) {
-              lines[i].style.visibility = "hidden";
-            }
-            xline.style.visibility = "hidden";
-          }
+	 pointSize: 2.3
             }
           );
       setStatus();
