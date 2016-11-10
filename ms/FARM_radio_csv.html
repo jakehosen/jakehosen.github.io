@@ -117,8 +117,8 @@
       zoom: true
    });
 
-
-(function() {
+{
+(function Dygraph.synchronize() {
 /* global Dygraph:false */
 'use strict';
 
@@ -331,6 +331,7 @@ function attachSelectionHandlers(gs, prevCallbacks) {
 Dygraph.synchronize = synchronize;
 
 })();
+}
 
   </body>
 </html>
