@@ -30,7 +30,6 @@
     <script type="text/javascript" src="dygraph-combined-dev.js"></script>
 
     <script type="text/javascript" src="data.js"></script>
-    <script type="text/javascript" src="synchronizer.js"></script>		
   </head>
   <body>
     <h3>Farmington Sonde Data</h3>
@@ -43,9 +42,6 @@
 
 
     <script type="text/javascript">
-	
-
-	
       g = new Dygraph(
             document.getElementById("div_g"),
 "farm_sonde_dygraph_excel.csv",
@@ -79,7 +75,7 @@
 
 <div id="wrap">
     <div id="left_col">
-  <p><b>Select Variables:</b></p>
+  <p><b>Select Top Variables:</b></p>
   <p>
     <input type=checkbox id="0" checked onClick="change(this)">
     <label for="0"> Temperature</label><br/>
@@ -101,10 +97,17 @@
     </div>
     <div id="right_col">
   <p>
-
+  </p>
+  
     </div>
 </div>
 
-	  
-	
-    </script>
+      <p>
+        Synchronize what?
+        <input type=checkbox id='chk-zoom' checked onChange='update()'><label for='chk-zoom'> Zoom</label>
+        <input type=checkbox id='chk-selection' checked onChange='update()'><label for='chk-selection'> Selection</label>
+      </p>
+
+    <p>g.visibility() = <span id="visibility"></span></p>	  
+  </body>
+</html>
