@@ -217,7 +217,7 @@ dygraph(lungDeaths) %>%
 5:30:00.000Z","2015-07-09T05:45:00.000Z","2015-07-09T06:00:00.000Z","2015-07-0
 farm_sonde2$dt<-paste(farm_sonde2$DATE," ",farm_sonde2$TIME, sep="")
 
-write.csv(farm_sonde2[1:100,c("dt","Temp_deg_C","pH_units","SpCond_uS_cm","HDO_mg_l","fdom_qsu_temp","fdom_turb_ife","CDOM_qsu","X_00060_00011")],file="farm_sonde_dygraph.csv",row.names=FALSE)
+write.csv(farm_sonde2[,c("dt","Temp_deg_C","pH_units","SpCond_uS_cm","HDO_mg_l","fdom_qsu_temp","fdom_turb_ife","CDOM_qsu","X_00060_00011")],file="farm_sonde_dygraph.csv",row.names=FALSE)
 
 x<-paste("\"",farm_sonde2$dt,", ",farm_sonde2$Temp_deg_C,", ",farm_sonde2$pH_units,", ",farm_sonde2$SpCond_uS_cm,", ",farm_sonde2$HDO_mg_l,", ",farm_sonde2$fdom_qsu_temp,", ",farm_sonde2$fdom_turb_ife,", ",farm_sonde2$CDOM_qsu,"\\n\"+\n",sep="")
 cat("	<!DOCTYPE html>
