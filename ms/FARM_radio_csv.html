@@ -15,25 +15,27 @@
     <script type="text/javascript" src="data.js"></script>
   </head>
   <body>
-    <h3>Click the check boxes to toggle series visibility</h3>
+    <h3>Farmington Sonde Data</h3>
     <div id="div_g" style="width:600px; height:300px;"></div>
 
     <p><b>Show Series:</b></p>
     <p>
       <input type=checkbox id="0" onClick="change(this)">
       <label for="0"> Temperature</label><br/>
-      <input type=checkbox id="1" checked onClick="change(this)">
+      <input type=checkbox id="1" onClick="change(this)">
       <label for="1"> pH</label><br/>
-      <input type=checkbox id="2" checked onClick="change(this)">
+      <input type=checkbox id="2" onClick="change(this)">
       <label for="2"> Conductivity</label><br/>
       <input type=checkbox id="3" onClick="change(this)">
       <label for="3"> DO</label><br/>
-      <input type=checkbox id="4" checked onClick="change(this)">
+      <input type=checkbox id="4" onClick="change(this)">
       <label for="4"> Temp-Cor fDOM (QSU)</label><br/>
-      <input type=checkbox id="5" checked onClick="change(this)">
+      <input type=checkbox id="5" onClick="change(this)">
       <label for="5"> Full-Cor fDOM (QSU)</label><br/>	
-      <input type=checkbox id="6" checked onClick="change(this)">
+      <input type=checkbox id="6" onClick="change(this)">
       <label for="6"> fDOM (QSU)</label><br/>
+      <input type=checkbox id="7" onClick="change(this)">
+      <label for="7"> Discharge (CFS)</label><br/>	  
     </p>
 
     <p>g.visibility() = <span id="visibility"></span></p>
@@ -45,7 +47,8 @@
 "farm_sonde_dygraph.csv",
 		  
  {
-              visibility: [false, false, false,false,false,false,false]
+              visibility: [false, false, false,false,false,false,false,false]
+ showRangeSelector: true
             }
           );
       setStatus();
