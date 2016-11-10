@@ -149,14 +149,15 @@ return(all_sonde)
 farm_sonde<-sonde_q("FARM")
 farm_sonde2<-sonde_imp("FARM")
 farm_cdom2<-zoo(farm_sonde2[,c("fdom2_qsu_temp","fdom2_turb_ife")],farm_sonde$dtp)
-farm_cdom1<-zoo(farm_sonde2[,c("fdom_qsu_temp","fdom_turb_ife")],farm_sonde$dtp)
+farm_cdom1<-zoo(farm_sonde2[1:100,c("fdom_qsu_temp","fdom_turb_qsu","fdom_turb_ife")],as.POSIXct(farm_sonde2$dtp_sonde,format="%Y-%m-%d %H:%M",tz="EST")[1:100])
 farm_temp<-zoo(farm_sonde[,c("Temp_deg_C")],farm_sonde$dtp)
 farm_cond<-zoo(farm_sonde[,c("SpCond_uS_cm")],farm_sonde$dtp)
 farm_turb<-zoo(farm_sonde[,c("Turb_NTU")],farm_sonde$dtp)
 farm_dis<-zoo(farm_sonde[,c("X_00060_00011")],farm_sonde$dtp)
 farm_do<-zoo(farm_sonde[,c("HDO_mg_l")],farm_sonde$dtp)
 dygraph(farm_cdom1,group="farm")  %>% 
-  dyRangeSelector()
+  dyRangeSelector()  %>% 
+  dyVisibility(visibility=c(TRUE,TRUE, TRUE))  
 dygraph(farm_cdom,group="farm")  %>% 
     dyRangeSelector()  %>% 
 	 dyOptions(drawGrid = FALSE)
@@ -174,8 +175,21 @@ dygraph(farm_do,group="farm")  %>%
    dyRangeSelector()
 
 
+   library(dygraphs)
 
-render("~/Documents/jakehosen.github.io/ms/test2.Rmd")
+   lungDeaths <- cbind(ldeaths, mdeaths, fdeaths)
+
+   dyVisibility <- function (dygraph, visibility = TRUE){
+     dygraph$x$attrs$visibility <- visibility
+     dygraph
+   }
+
+  dygraph(lungDeaths, main = "Deaths from Lung Disease (UK)") %>%
+     dyVisibility(visibility=c(TRUE,FALSE, TRUE))
+
+
+render("~/Documents/jakehosen.github.io/ms/index.Rmd")
+render("~/Documents/jakehosen.github.io/ms/radio_test.Rmd")
 
 xt <- xts(x = df$price, order.by = time)
 farm_sonde$dtp2<-ts(as.POSIXct(farm_sonde$dtp))
@@ -195,3 +209,80 @@ dygraph(lungDeaths) %>%
   dySeries("fdeaths", label = "Female") %>%
   dyOptions(stackedGraph = TRUE) %>%
   dyRangeSelector(height = 20)
+  
+  
+  
+  
+  
+5:30:00.000Z","2015-07-09T05:45:00.000Z","2015-07-09T06:00:00.000Z","2015-07-0
+farm_sonde2$dt<-paste(farm_sonde2$DATE,"T",farm_sonde2$TIME,".000Z", sep="")
+
+write.csv(farm_sonde2[1:100,c("dt","Temp_deg_C","pH_units","SpCond_uS_cm","HDO_mg_l","fdom_qsu_temp","fdom_turb_ife","CDOM_qsu")],file="farm_sonde_dygraph.csv",row.names=FALSE)
+
+x<-paste("\"",farm_sonde2$dt,", ",farm_sonde2$Temp_deg_C,", ",farm_sonde2$pH_units,", ",farm_sonde2$SpCond_uS_cm,", ",farm_sonde2$HDO_mg_l,", ",farm_sonde2$fdom_qsu_temp,", ",farm_sonde2$fdom_turb_ife,", ",farm_sonde2$CDOM_qsu,"\\n\"+\n",sep="")
+cat("	<!DOCTYPE html>
+	<html>
+	  <head>
+	    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=EmulateIE7; IE=EmulateIE9\">
+	    <title>visibility</title>
+	    <!--[if IE]>
+	    <script type=\"text/javascript\" src=\"../excanvas.js\"></script>
+	    <![endif]-->
+	    <!--
+	    For production (minified) code, use:
+	    <script type=\"text/javascript\" src=\"dygraph-combined.js\"></script>
+	    -->
+	    <script type=\"text/javascript\" src=\"dygraph-combined-dev.js\"></script>
+
+	    <script type=\"text/javascript\" src=\"data.js\"></script>
+	  </head>
+	  <body>
+	    <h3>Click the check boxes to toggle series visibility</h3>
+	    <div id=\"div_g\" style=\"width:600px; height:300px;\"></div>
+
+	    <p><b>Show Series:</b></p>
+	    <p>
+	      <input type=checkbox id=\"0\" onClick=\"change(this)\">
+	      <label for=\"0\"> Temperature</label><br/>
+	      <input type=checkbox id=\"1\" checked onClick=\"change(this)\">
+	      <label for=\"1\"> pH</label><br/>
+	      <input type=checkbox id=\"2\" checked onClick=\"change(this)\">
+	      <label for=\"2\"> Conductivity</label><br/>
+	      <input type=checkbox id=\"3\" onClick=\"change(this)\">
+	      <label for=\"3\"> DO</label><br/>
+	      <input type=checkbox id=\"4\" checked onClick=\"change(this)\">
+	      <label for=\"4\"> Temp-Cor fDOM (QSU)</label><br/>
+	      <input type=checkbox id=\"5\" checked onClick=\"change(this)\">
+	      <label for=\"5\"> Full-Cor fDOM (QSU)</label><br/>	
+	      <input type=checkbox id=\"6\" checked onClick=\"change(this)\">
+	      <label for=\"6\"> fDOM (QSU)</label><br/>
+	    </p>
+
+	    <p>g.visibility() = <span id=\"visibility\"></span></p>
+
+
+	    <script type=\"text/javascript\">
+	      g = new Dygraph(
+	            document.getElementById(\"div_g\"),\n
+\"Date,Temp,pH,Conductivity,DO_mgl,fdom_qsu_temp,fdom_turb_ife,fDOM_QSU\\n\"+\n			
+			",x,"\n
+		  
+			    {
+			                 visibility: [false, false, false,false,false,false,false]
+			               }
+			             );
+			         setStatus();
+
+			         function setStatus() {
+			           document.getElementById(\"visibility\").innerHTML =
+			             g.visibility().toString();
+			         }
+
+			         function change(el) {
+			           g.setVisibility(parseInt(el.id), el.checked);
+			           setStatus();
+			         }
+			       </script>
+
+			     </body>
+			   </html>",file="test.html")
