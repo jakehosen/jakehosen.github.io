@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
+	  
+
+<style type="text/css">
+#wrap {
+   width:600px;
+   margin:0 auto;
+		}
+#left_col {
+   float:left;
+   width:300px;
+		}
+#right_col {
+   float:right;
+   width:300px;
+	}
+	</style>
+
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
     <title>visibility</title>
     <!--[if IE]>
@@ -19,25 +36,15 @@
     <h3>Farmington Sonde Data</h3>
     <div id="div_g" style="width:600px; height:300px;"></div>
 
-    <p><b>Show Series:</b></p>
+
     <p>
-      <input type=checkbox id="0" onClick="change(this)">
-      <label for="0"> Temperature</label><br/>
-      <input type=checkbox id="1" onClick="change(this)">
-      <label for="1"> pH</label><br/>
-      <input type=checkbox id="2" onClick="change(this)">
-      <label for="2"> Conductivity</label><br/>
-      <input type=checkbox id="3" onClick="change(this)">
-      <label for="3"> DO</label><br/>
-      <input type=checkbox id="4" onClick="change(this)">
-      <label for="4"> Temp-Cor fDOM (QSU)</label><br/>
-      <input type=checkbox id="5" onClick="change(this)">
-      <label for="5"> Full-Cor fDOM (QSU)</label><br/>	
-      <input type=checkbox id="6" onClick="change(this)">
-      <label for="6"> fDOM (QSU)</label><br/>
-      <input type=checkbox id="7" onClick="change(this)">
-      <label for="7"> Discharge (CFS)</label><br/>	  
+      Synchronize what?
+      <input type=checkbox id='chk-zoom' checked onChange='update()'><label for='chk-zoom'> Zoom</label>
+      <input type=checkbox id='chk-selection' checked onChange='update()'><label for='chk-selection'> Selection</label>
     </p>
+
+
+
 
     <p>g.visibility() = <span id="visibility"></span></p>
 
@@ -68,25 +75,54 @@
     <h3>Farmington Sonde Data</h3>
     <div id="div_f" style="width:600px; height:300px;"></div>
 
-    <p><b>Show Series:</b></p>
-    <p>
-      <input type=checkbox id="0" onClick="change1(this)">
-      <label for="0"> Temperature</label><br/>
-      <input type=checkbox id="1" onClick="change1(this)">
-      <label for="1"> pH</label><br/>
-      <input type=checkbox id="2" onClick="change1(this)">
-      <label for="2"> Conductivity</label><br/>
-      <input type=checkbox id="3" onClick="change1(this)">
-      <label for="3"> DO</label><br/>
-      <input type=checkbox id="4" onClick="change1(this)">
-      <label for="4"> Temp-Cor fDOM (QSU)</label><br/>
-      <input type=checkbox id="5" onClick="change1(this)">
-      <label for="5"> Full-Cor fDOM (QSU)</label><br/>	
-      <input type=checkbox id="6" onClick="change1(this)">
-      <label for="6"> fDOM (QSU)</label><br/>
-      <input type=checkbox id="7" onClick="change1(this)">
-      <label for="7"> Discharge (CFS)</label><br/>	  
-    </p>
+
+
+<div id="wrap">
+    <div id="left_col">
+  <p><b>Select Top Variables:</b></p>
+  <p>
+    <input type=checkbox id="0" onClick="change(this)">
+    <label for="0"> Temperature</label><br/>
+    <input type=checkbox id="1" onClick="change(this)">
+    <label for="1"> pH</label><br/>
+    <input type=checkbox id="2" onClick="change(this)">
+    <label for="2"> Conductivity</label><br/>
+    <input type=checkbox id="3" onClick="change(this)">
+    <label for="3"> DO</label><br/>
+    <input type=checkbox id="4" onClick="change(this)">
+    <label for="4"> Temp-Cor fDOM (QSU)</label><br/>
+    <input type=checkbox id="5" onClick="change(this)">
+    <label for="5"> Full-Cor fDOM (QSU)</label><br/>	
+    <input type=checkbox id="6" onClick="change(this)">
+    <label for="6"> fDOM (QSU)</label><br/>
+    <input type=checkbox id="7" onClick="change(this)">
+    <label for="7"> Discharge (CFS)</label><br/>	  
+  </p>
+    </div>
+    <div id="right_col">
+  <p>
+      <p><b>Select Bottom Variables:</b></p>
+	  
+    <input type=checkbox id="0" onClick="change1(this)">
+    <label for="0"> Temperature</label><br/>
+    <input type=checkbox id="1" onClick="change1(this)">
+    <label for="1"> pH</label><br/>
+    <input type=checkbox id="2" onClick="change1(this)">
+    <label for="2"> Conductivity</label><br/>
+    <input type=checkbox id="3" onClick="change1(this)">
+    <label for="3"> DO</label><br/>
+    <input type=checkbox id="4" onClick="change1(this)">
+    <label for="4"> Temp-Cor fDOM (QSU)</label><br/>
+    <input type=checkbox id="5" onClick="change1(this)">
+    <label for="5"> Full-Cor fDOM (QSU)</label><br/>	
+    <input type=checkbox id="6" onClick="change1(this)">
+    <label for="6"> fDOM (QSU)</label><br/>
+    <input type=checkbox id="7" onClick="change1(this)">
+    <label for="7"> Discharge (CFS)</label><br/>	  
+  </p>
+  
+    </div>
+</div>
 
     <p>f.visibility() = <span id="visibility"></span></p>
 
@@ -110,14 +146,12 @@
       function change1(el) {
         f.setVisibility(parseInt(el.id), el.checked);
         setStatus();
+		
+		
       }
+	  
+	
     </script>
-
-   var sync = Dygraph.synchronize(g, f, {
-      selection: true,
-      zoom: true
-   });
-
   </body>
 </html>
 
