@@ -34,7 +34,7 @@
   </head>
   <body>
     <h3>Farmington Sonde Data</h3>
-    <div id="div_g" style="width:860px; height:210px;"></div>
+    <div id="div_g" style="width:600px; height:200px;"></div>
 
 
 
@@ -72,23 +72,7 @@
               drawYGrid: false,
 	 			drawPoints: true,
 	  			strokeWidth: 0,
-		 	pointSize: 3,
-     highlightCallback: function(e, x, pts) {
-            for (var i = 0; i < pts.length; i++) {
-              var y = pts[i].canvasy;
-              lines[i].style.visibility = "visible";
-              lines[i].style.top = y + "px";
-              if (i == 0) xline.style.left = pts[i].canvasx + "px";
-            }
-            xline.style.visibility = "visible";
-          },
-
-          unhighlightCallback: function(e) {
-            for (var i = 0; i < 2; i++) {
-              lines[i].style.visibility = "hidden";
-            }
-            xline.style.visibility = "hidden";
-          }
+	  			pointSize: 5
             }
           );
       setStatus();
@@ -105,7 +89,7 @@
 
     </script>
 
-    <div id="div_f" style="width:860px; height:210px;"></div>
+    <div id="div_f" style="width:600px; height:200px;"></div>
 
 
 
@@ -167,10 +151,7 @@
  {
               visibility: [true, true, true,true,true,true,true,true],
               drawXGrid: false,
-              drawYGrid: false,
-	 			drawPoints: true,
-	  			strokeWidth: 0,
-		 	pointSize: 3
+              drawYGrid: false
             }
           );
       setStatus1();
