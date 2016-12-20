@@ -149,6 +149,9 @@
 "farm_sonde_dygraph_excel.csv",
 		  
  {
+                       var mm = calcMinMax(this),
+                           ymin = mm[0],
+                           ymax = mm[1],
               visibility: [true, true, true,true,true,true,true,true],
               drawXGrid: false,
               drawYGrid: false,
@@ -207,6 +210,40 @@
       showYDimensions(g.yAxisRanges());
       }
 
+ function calcMinMax(g) {
+  var ymin = g.getValue(0, 1), ymax = g.getValue(0, 1), v;
+    for (var i = 0; i < g.numRows(); i++) {
+      for (var j = 1; j < g.numColumns(); j++) {
+	        y = g.getValue(i, j);
+	        if (y < ymin) {
+	          ymin = y;
+	        } else if (y > ymax) {
+	          ymax = y;
+	        }
+	      }
+	    }
+	    return [ymin, ymax];
+	  }
+
+
+  function calcMin(g) {
+   var ymin = g.getValue(0, 1), ymax = g.getValue(0, 1), v;
+     for (var i = 0; i < g.numRows(); i++) {
+       for (var j = 1; j < g.numColumns(); j++) {
+ 	        y = g.getValue(i, j);
+ 	        if (y < ymin) {
+ 	          ymin = y;
+ 	        } else if (y > ymax) {
+ 	          ymax = y;
+ 	        }
+ 	      }
+ 	    }
+ 	    return [ymin];
+ 	  }
+
+
+
+
 function myFunction() {
 	var minValue = document.getElementById("min").value;
 	var maxValue = document.getElementById("max").value;
@@ -221,12 +258,10 @@ function myFunction() {
 
 
 
-Y-Min: <input type="text" id="min" value="Some text...">
+Y-Min: <input type="text" id="min" value=ymin>
 Y-Max: <input type="text" id="max" value="Some text...">
 
-<p>Click the "Try it" button to get the text in the text field.</p>
-
-<button onclick="myFunction()">Try it</button>
+<button onclick="myFunction()">Set</button>
 
 <p id="demo"></p>
 
