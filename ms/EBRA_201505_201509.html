@@ -17,15 +17,19 @@
    width:600px;
    margin:0 auto;
 		}
-
 #left_col {
    float:left;
-   width:300px;
+   width:33%;
 		}
 #right_col {
    float:right;
-   width:300px;
+   width:33%;
 	}
+#center_col {
+   display:inline-block;
+   width:33%;
+	}
+	
 	</style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
@@ -135,6 +139,32 @@
   </p>
   </p>
     </div>
+	
+    <div id="center_col">
+  <p><b>Select Middle Variables:</b></p>
+  <p>
+    <input type=checkbox id="0"checked onClick="change2(this)">
+    <label for="0"> Temperature</label><br/>
+    <input type=checkbox id="1"checked onClick="change2(this)">
+    <label for="1"> pH</label><br/>
+    <input type=checkbox id="2"checked onClick="change2(this)">
+    <label for="2"> Conductivity</label><br/>
+    <input type=checkbox id="3"checked onClick="change2(this)">
+    <label for="3"> DO</label><br/>
+    <input type=checkbox id="4"checked onClick="change2(this)">
+    <label for="4"> Turbidity</label><br/>
+    <input type=checkbox id="5"checked onClick="change2(this)">
+    <label for="5"> Temp-Cor fDOM (QSU)</label><br/>
+    <input type=checkbox id="6"checked onClick="change2(this)">
+    <label for="6"> Full-Cor fDOM (QSU)</label><br/>	
+    <input type=checkbox id="7"checked onClick="change2(this)">
+    <label for="7"> fDOM (QSU)</label><br/>
+    <input type=checkbox id="8"checked onClick="change2(this)">
+    <label for="8"> Discharge (CFS)</label><br/>	  
+  </p>
+  </p>
+    </div>
+		
     <div id="right_col">
   <p>
       <p><b>Select Bottom Variables:</b></p>
@@ -193,12 +223,12 @@
  var sync = Dygraph.synchronize(f);
 
 	    function update() {
-//	        var zoom = document.getElementById('chk-zoom').checked;
+	        var zoom = document.getElementById('chk-zoom').checked;
 	        var selection = document.getElementById('chk-selection').checked;
 	        sync.detach();
 	        sync = Dygraph.synchronize(f, {
-//	        zoom: zoom,
-//	        selection: selection,
+	        zoom: zoom,
+	        selection: selection,
 			range: false
 	           });
 	         }
@@ -213,11 +243,11 @@
 	  var sync = Dygraph.synchronize(f,g);
 
 	  function update() {
-//	      var zoom = document.getElementById('chk-zoom').checked;
+	      var zoom = document.getElementById('chk-zoom').checked;
 	      var selection = document.getElementById('chk-selection').checked;
 	      sync.detach();
 	      sync = Dygraph.synchronize(f,g, {
-//	      zoom: zoom,
+	      zoom: zoom,
 	      selection: selection,
 		  range: false			  
 	         });
