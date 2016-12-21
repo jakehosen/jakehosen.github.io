@@ -4,6 +4,12 @@
 	  
 
 <style type="text/css">
+
+Y-Min: <input type="text" id="min" value=0>
+Y-Max: <input type="text" id="max" value=1000>
+
+<button onclick="myFunction()">Set</button>
+
 #wrap {
    width:600px;
    margin:0 auto;
@@ -262,10 +268,6 @@ function myFunction() {
 
 
 
-Y-Min: <input type="text" id="min" value=0>
-Y-Max: <input type="text" id="max" value=1000>
-
-<button onclick="myFunction()">Set</button>
 
 <!--
     <p><b>Zoom operations:</b></p>
@@ -281,7 +283,7 @@ Y-Max: <input type="text" id="max" value=1000>
 
       <p>
         Synchronize what?
-        <input type=checkbox id='chk-zoom' checked onChange='update()'><label for='chk-zoom'> Zoom</label>
+        <input type=checkbox id='chk-zoom' onChange='update()'><label for='chk-zoom'> Zoom</label>
         <input type=checkbox id='chk-selection' checked onChange='update()'><label for='chk-selection'> Selection</label>
       </p>
 
