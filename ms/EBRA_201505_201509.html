@@ -177,11 +177,11 @@
  var sync = Dygraph.synchronize(f);
 
 	    function update() {
-	        var zoom = document.getElementById('chk-zoom').checked;
+//	        var zoom = document.getElementById('chk-zoom').checked;
 	        var selection = document.getElementById('chk-selection').checked;
 	        sync.detach();
 	        sync = Dygraph.synchronize(f, {
-	        zoom: zoom,
+//	        zoom: zoom,
 	        selection: selection
 	           });
 	         }
@@ -265,9 +265,7 @@ Y-Max: <input type="text" id="max" value=1000>
 
 <button onclick="myFunction()">Set</button>
 
-<p id="demo"></p>
-
-
+<!--
     <p><b>Zoom operations:</b></p>
     <p>
       <input type="button" value="Y (3,5)" onclick="zoomGraphY(3,5)">&nbsp;
@@ -277,7 +275,7 @@ Y-Max: <input type="text" id="max" value=1000>
       <input type="button" value="Y (0,1)" onclick="zoomGraphY(0,1)">&nbsp;
       <br>
 	 </p>
-
+-->
 
       <p>
         Synchronize what?
@@ -285,6 +283,6 @@ Y-Max: <input type="text" id="max" value=1000>
         <input type=checkbox id='chk-selection' checked onChange='update()'><label for='chk-selection'> Selection</label>
       </p>
 
-    <p>g.visibility() = <span id="visibility"></span></p>	  
+<!--    <p>g.visibility() = <span id="visibility"></span></p>	  -->
   </body>
 </html>
