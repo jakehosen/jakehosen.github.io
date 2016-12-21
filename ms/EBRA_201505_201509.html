@@ -202,32 +202,29 @@ float:left;
       f = new Dygraph(
             document.getElementById("div_f"),
 "ebra_201505_201509.csv",
+		  
+ {
+              visibility: [true, true, true,true,true,true,true,true,true],
+              drawXGrid: false,
+              drawYGrid: false,
+	 			drawPoints: true,
+	  			strokeWidth: 0,
+	 pointSize: 2,
+	 	 showRangeSelector: true
+            }
+          );
+      setStatus1();
 
+      function setStatus1() {
+        document.getElementById("visibility").innerHTML =
+          f.visibility().toString();
+      }
 
-		  {
-		               visibility: [true, true, true,true,true,true,true,true,true],
-		               drawXGrid: false,
-		               drawYGrid: false,
-		 	 			drawPoints: true,
-		 	  			strokeWidth: 0,
-		 	 pointSize: 2
+      function change1(el) {
+        f.setVisibility(parseInt(el.id), el.checked);
+        setStatus();
 
-		             }
-		           );
-		       setStatus();
-
-		       function setStatus() {
-		         document.getElementById("visibility").innerHTML =
-		           g.visibility().toString();
-		       }
-
-		       function change1(el) {
-		         g.setVisibility(parseInt(el.id), el.checked);
-		         setStatus();
-		       }
-
-
-
+		
       }
 	  
 	
