@@ -12,18 +12,8 @@ var gs;
 window.update = function() {
     var chk = document.getElementById('chk-sync').checked;
     
-    if(chk) {
+
         sync = Dygraph.synchronize(gs,{range:false});
-    }
-    else {
-        sync.detach();
-	    for (i = 0; i < 3; ++i) {
-			gs[i].updateOptions({
-                dateWindow: null,
-			    valueRange: null
-		    });
-        }	
-    }
 }
 
 function data(mul, shift) {
