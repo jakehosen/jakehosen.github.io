@@ -51,16 +51,40 @@ float:left;
     <script type="text/javascript" src="synchronizer.js"></script>		
   </head>
   <body>
-    <h3>E. Branch Passumpsic Sonde Data</h3>
-    <div id="div_g" style="width:825px; height:250px;"></div>
-
-
-
-
-
-
+	  
 
     <script type="text/javascript">
+	
+      f = new Dygraph(
+            document.getElementById("div_f"),
+"ebra_201505_201509.csv",
+		  
+ {
+              visibility: [true, true, true,true,true,true,true,true,true],
+              drawXGrid: false,
+              drawYGrid: false,
+	 			drawPoints: true,
+	  			strokeWidth: 0,
+	 pointSize: 2,
+	 	 showRangeSelector: true
+            }
+          );
+      setStatus1();
+
+      function setStatus1() {
+        document.getElementById("visibility").innerHTML =
+          f.visibility().toString();
+      }
+
+      function change1(el) {
+        f.setVisibility(parseInt(el.id), el.checked);
+        setStatus();
+
+		
+      }
+	  
+	
+	
 	
 	window.update = function() {
 	    var chk = document.getElementById('chk-sync').checked;
@@ -107,6 +131,17 @@ float:left;
       }
 
     </script>
+	  
+	  
+	  
+    <h3>E. Branch Passumpsic Sonde Data</h3>
+    <div id="div_g" style="width:825px; height:250px;"></div>
+
+
+
+
+
+
 
     <div id="div_f" style="width:825px; height:225px;"></div>
 
@@ -198,37 +233,6 @@ float:left;
 
 
 
-    <script type="text/javascript">
-      f = new Dygraph(
-            document.getElementById("div_f"),
-"ebra_201505_201509.csv",
-		  
- {
-              visibility: [true, true, true,true,true,true,true,true,true],
-              drawXGrid: false,
-              drawYGrid: false,
-	 			drawPoints: true,
-	  			strokeWidth: 0,
-	 pointSize: 2,
-	 	 showRangeSelector: true
-            }
-          );
-      setStatus1();
-
-      function setStatus1() {
-        document.getElementById("visibility").innerHTML =
-          f.visibility().toString();
-      }
-
-      function change1(el) {
-        f.setVisibility(parseInt(el.id), el.checked);
-        setStatus();
-
-		
-      }
-	  
-	
-    </script>
 
 
 <script>
@@ -239,9 +243,8 @@ float:left;
 	      var selection = document.getElementById('chk-selection').checked;
 	      sync.detach();
 	      sync = Dygraph.synchronize(f,g, {
-	      zoom: true,
-	      selection: true,
-		  range: false			  
+	      zoom: false,
+	      selection: true
 	         });
 	       }
 	  
