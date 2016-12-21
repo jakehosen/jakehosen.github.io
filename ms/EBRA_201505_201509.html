@@ -243,8 +243,9 @@ float:left;
 	      var selection = document.getElementById('chk-selection').checked;
 	      sync.detach();
 	      sync = Dygraph.synchronize(f,g, {
-	      zoom: false,
-	      selection: true
+	      zoom: true,
+	      selection: true,
+		  range: false			  
 	         });
 	       }
 	  
