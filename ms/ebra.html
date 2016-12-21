@@ -6,11 +6,42 @@
 <div id="g3a"></div>
 
 <script type="text/javascript">
-        sync = Dygraph.synchronize([gs],{range:false});
+var sync;
+var gs;
+
+window.update = function() {
+    var chk = document.getElementById('chk-sync').checked;
+    
+    if(chk) {
+        sync = Dygraph.synchronize(gs,{range:false});
+    }
+    else {
+        sync.detach();
+	    for (i = 0; i < 3; ++i) {
+			gs[i].updateOptions({
+                dateWindow: null,
+			    valueRange: null
+		    });
+        }	
+    }
+}
+
+function data(mul, shift) {
+    var arr = [];
+    
+    for (var i = 1; i <= 31; i++) {
+        arr.push([new Date('2015/01/' + i), Math.sin(i * mul) + shift]);
+    }
+    
+    return arr;
+}
 
 gs = [
-    new Dygraph(document.getElementById("g1a"), "ebra_201505_201509.csv",{visibility: [true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:2}),
+    new Dygraph(document.getElementById("g1a"), data(0.1, 1)),
     new Dygraph(document.getElementById("g2a"), data(0.2, 2)),
     new Dygraph(document.getElementById("g3a"), data(0.3, -2))
 ];
+
+
+
 </script>
