@@ -1,18 +1,11 @@
 <script type="text/javascript" src="http://dygraphs.com/dygraph-combined.js"></script>
 <script type="text/javascript" src="http://dygraphs.com/extras/synchronizer.js"></script>
 
-<input type="checkbox" id="chk-sync" onchange="update()"><label for="chk-sync">Sync</label>
-
 <div id="g1a"></div>
 <div id="g2a"></div>
 <div id="g3a"></div>
 
-<div id="g1b"></div>
-<div id="g2b"></div>
-<div id="g3b"></div>
-
-
-    <script type="text/javascript">
+<script type="text/javascript">
         sync = Dygraph.synchronize([gs],{range:false});
 
 gs = [
