@@ -182,7 +182,8 @@
 	        sync.detach();
 	        sync = Dygraph.synchronize(f, {
 //	        zoom: zoom,
-	        selection: selection
+	        selection: selection,
+			range: false
 	           });
 	         }
 		
@@ -201,7 +202,8 @@
 	      sync.detach();
 	      sync = Dygraph.synchronize(f,g, {
 //	      zoom: zoom,
-	      selection: selection
+	      selection: selection,
+		  range: false			  
 	         });
 	       }
 	  
