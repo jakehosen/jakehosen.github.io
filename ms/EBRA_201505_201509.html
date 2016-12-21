@@ -3,10 +3,7 @@
   <head>
 	  
 
-Y-Min: <input type="text" id="min" value=0>
-Y-Max: <input type="text" id="max" value=1000>
 
-<button onclick="myFunction()">Set</button>
 
 <style type="text/css">
 
@@ -16,6 +13,10 @@ Y-Max: <input type="text" id="max" value=1000>
    width:600px;
    margin:0 auto;
 		}
+#set_range {
+		   float:left;
+		   width:300px;
+			}
 #left_col {
    float:left;
    width:300px;
@@ -27,7 +28,7 @@ Y-Max: <input type="text" id="max" value=1000>
 	</style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
-    <title>visibility</title>
+    <title>E. Branch Passumpsic</title>
     <!--[if IE]>
     <script type="text/javascript" src="../excanvas.js"></script>
     <![endif]-->
@@ -102,6 +103,12 @@ Y-Max: <input type="text" id="max" value=1000>
 
 
 <div id="wrap">
+	<div id="set_range">
+	Y-Min: <input type="text" id="min" value=0>
+	Y-Max: <input type="text" id="max" value=1000>
+
+	<button onclick="myFunction()">Set</button>
+</div>
     <div id="left_col">
   <p><b>Select Top Variables:</b></p>
   <p>
@@ -268,6 +275,10 @@ function myFunction() {
 	  
 </script>
 
+Y-Min: <input type="text" id="min" value=0>
+Y-Max: <input type="text" id="max" value=1000>
+
+<button onclick="myFunction()">Set</button>
 
 
 
