@@ -223,22 +223,7 @@ float:left;
       function change1(el) {
         f.setVisibility(parseInt(el.id), el.checked);
         setStatus();
-		
- var sync = Dygraph.synchronize(f);
 
-	    function update() {
-	        var zoom = document.getElementById('chk-zoom').checked;
-	        var selection = document.getElementById('chk-selection').checked;
-	        sync.detach();
-	        sync = Dygraph.synchronize(f, {
-	        zoom: false,
-	        selection: selection,
-			range: false
-	           });
-	         }
-		
-      }
-	  
 	
     </script>
 
@@ -251,8 +236,8 @@ float:left;
 	      var selection = document.getElementById('chk-selection').checked;
 	      sync.detach();
 	      sync = Dygraph.synchronize(f,g, {
-	      zoom: false,
-	      selection: selection,
+	      zoom: true,
+	      selection: true,
 		  range: false			  
 	         });
 	       }
