@@ -14,7 +14,7 @@ var gs;
 window.update = function() {
     var chk = document.getElementById('chk-sync').checked;
     
-
+    if(chk) {
         sync = Dygraph.synchronize(gs,{range:false});
     }
     else {
@@ -43,7 +43,4 @@ gs = [
     new Dygraph(document.getElementById("g2a"), data(0.2, 2)),
     new Dygraph(document.getElementById("g3a"), data(0.3, -2))
 ];
-
-
-
 </script>
