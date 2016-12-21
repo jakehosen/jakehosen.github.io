@@ -231,7 +231,7 @@ float:left;
 	        var selection = document.getElementById('chk-selection').checked;
 	        sync.detach();
 	        sync = Dygraph.synchronize(f, {
-	        zoom: true,
+	        zoom: false,
 	        selection: selection,
 			range: false
 	           });
@@ -251,7 +251,7 @@ float:left;
 	      var selection = document.getElementById('chk-selection').checked;
 	      sync.detach();
 	      sync = Dygraph.synchronize(f,g, {
-	      zoom: true,
+	      zoom: false,
 	      selection: selection,
 		  range: false			  
 	         });
