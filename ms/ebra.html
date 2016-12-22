@@ -105,10 +105,17 @@ function myFunction() {
     g11a.updateOptions({
     valueRange: [minValue, maxValue]
     });
-    showYDimensions(g.yAxisRanges());
+    showYDimensions(g11a.yAxisRanges());
 	}
 	  
-
+function myFunction1() {
+	var minValue = document.getElementById("min").value;
+	var maxValue = document.getElementById("max").value;
+    g11a.updateOptions({
+    valueRange: [minValue, maxValue]
+    });
+    showYDimensions(g22a.yAxisRanges());
+	}
 
 
 </script>
@@ -117,7 +124,8 @@ function myFunction() {
 	Y-Min: <input type="text" id="min" value=0>
 	Y-Max: <input type="text" id="max" value=1000>
 
-	<button onclick="myFunction()">Set</button>
+	<button onclick="myFunction()">Set 1</button>
+	<button onclick="myFunction1()">Set 2</button>	
 </div>
 
 <div id="wrap">
