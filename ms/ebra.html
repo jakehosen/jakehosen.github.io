@@ -39,6 +39,18 @@
 <div id="g3a" style="width:825px; height:250px;"></div>
 
 <script type="text/javascript">
+function change1(el) {
+  f.setVisibility(parseInt(el.id), el.checked);
+  setStatus();
+}
+function change2(el) {
+  f.setVisibility(parseInt(el.id), el.checked);
+  setStatus();
+}
+
+
+
+
 var sync;
 var gs;
 
@@ -62,7 +74,12 @@ window.update = function() {
 
 
 gs = [
-    new Dygraph(document.getElementById("g1a"), "ebra_201505_201509.csv", {visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
+    new Dygraph(document.getElementById("g1a"), "ebra_201505_201509.csv", {visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75};
+	function change(el) {
+  g.setVisibility(parseInt(el.id), el.checked);
+  setStatus();
+}
+),
     new Dygraph(document.getElementById("g2a"), "ebra_201505_201509.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
     new Dygraph(document.getElementById("g3a"), "ebra_201505_201509.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75, showRangeSelector:true, interactionModel:Dygraph.defaultInteractionModel})
 ];
@@ -71,7 +88,7 @@ gs = [
 
 <div id="wrap">
     <div id="left_col">
-  <p><b>Select Top Variables:</b></p>
+  <p><b>Select First Graph Variables:</b></p>
   <p>
     <input type=checkbox id="0"checked onClick="change(this)">
     <label for="0"> Temperature</label><br/>
@@ -96,34 +113,8 @@ gs = [
     </div>
 	
     <div id="center_col">
-  <p><b>Select Middle Variables:</b></p>
+  <p><b>Select Second Graph Variables:</b></p>
   <p>
-    <input type=checkbox id="0"checked onClick="change2(this)">
-    <label for="0"> Temperature</label><br/>
-    <input type=checkbox id="1"checked onClick="change2(this)">
-    <label for="1"> pH</label><br/>
-    <input type=checkbox id="2"checked onClick="change2(this)">
-    <label for="2"> Conductivity</label><br/>
-    <input type=checkbox id="3"checked onClick="change2(this)">
-    <label for="3"> DO</label><br/>
-    <input type=checkbox id="4"checked onClick="change2(this)">
-    <label for="4"> Turbidity</label><br/>
-    <input type=checkbox id="5"checked onClick="change2(this)">
-    <label for="5"> Temp-Cor fDOM (QSU)</label><br/>
-    <input type=checkbox id="6"checked onClick="change2(this)">
-    <label for="6"> Full-Cor fDOM (QSU)</label><br/>	
-    <input type=checkbox id="7"checked onClick="change2(this)">
-    <label for="7"> fDOM (QSU)</label><br/>
-    <input type=checkbox id="8"checked onClick="change2(this)">
-    <label for="8"> Discharge (CFS)</label><br/>	  
-  </p>
-  </p>
-    </div>
-		
-    <div id="right_col">
-  <p>
-      <p><b>Select Bottom Variables:</b></p>
-	  
     <input type=checkbox id="0"checked onClick="change1(this)">
     <label for="0"> Temperature</label><br/>
     <input type=checkbox id="1"checked onClick="change1(this)">
@@ -141,6 +132,32 @@ gs = [
     <input type=checkbox id="7"checked onClick="change1(this)">
     <label for="7"> fDOM (QSU)</label><br/>
     <input type=checkbox id="8"checked onClick="change1(this)">
+    <label for="8"> Discharge (CFS)</label><br/>	  
+  </p>
+  </p>
+    </div>
+		
+    <div id="right_col">
+  <p>
+      <p><b>Select Third Graph Variables:</b></p>
+	  
+    <input type=checkbox id="0"checked onClick="change2(this)">
+    <label for="0"> Temperature</label><br/>
+    <input type=checkbox id="1"checked onClick="change2(this)">
+    <label for="1"> pH</label><br/>
+    <input type=checkbox id="2"checked onClick="change2(this)">
+    <label for="2"> Conductivity</label><br/>
+    <input type=checkbox id="3"checked onClick="change2(this)">
+    <label for="3"> DO</label><br/>
+    <input type=checkbox id="4"checked onClick="change2(this)">
+    <label for="4"> Turbidity</label><br/>
+    <input type=checkbox id="5"checked onClick="change2(this)">
+    <label for="5"> Temp-Cor fDOM (QSU)</label><br/>
+    <input type=checkbox id="6"checked onClick="change2(this)">
+    <label for="6"> Full-Cor fDOM (QSU)</label><br/>	
+    <input type=checkbox id="7"checked onClick="change2(this)">
+    <label for="7"> fDOM (QSU)</label><br/>
+    <input type=checkbox id="8"checked onClick="change2(this)">
     <label for="8"> Discharge (CFS)</label><br/>	  
   </p>
   
