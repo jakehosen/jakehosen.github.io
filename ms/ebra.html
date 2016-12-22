@@ -117,20 +117,6 @@ function myFunction1() {
     showYDimensions(g.yAxisRanges());
 	}
 	  
-function myFunction2() {
-	var minValue = document.getElementById("min").value;
-	var maxValue = document.getElementById("max").value;
-    g33a.updateOptions({
-    valueRange: [minValue, maxValue]
-    });
-    showYDimensions(g.yAxisRanges());
-	}
-function myFunction3() {
-	myFunction();
-	myFunction1();	
-	myFunction2();	
-	}
-
 
 
 </script>
@@ -142,7 +128,6 @@ function myFunction3() {
 	<button onclick="myFunction()">Set 1</button>
 	<button onclick="myFunction1()">Set 2</button>	
 	<button onclick="myFunction2()">Set 3</button>		
-	<button onclick="myFunction3()">Set All</button>		
 </div>
 
 <div id="wrap">
