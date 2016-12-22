@@ -33,6 +33,6 @@ window.update = function() {
 gs = [
     new Dygraph(document.getElementById("g1a"), "ebra_201505_201509.csv", {visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
     new Dygraph(document.getElementById("g2a"), "ebra_201505_201509.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
-    new Dygraph(document.getElementById("g3a"), "ebra_201505_201509.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75, showRangeSelector:true})
+    new Dygraph(document.getElementById("g3a"), "ebra_201505_201509.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75, showRangeSelector:true, interactionModel: Dygraph.defaultInteractionModel})
 ];
 </script>
