@@ -3,9 +3,9 @@
 
       <input type="checkbox" id="chk-sync" onchange="update()"><label for="chk-sync">Sync</label>
 
-<div id="g1a"></div>
-<div id="g2a"></div>
-<div id="g3a"></div>
+<div id="g1a" style="width:825px; height:225px;"></div>
+<div id="g2a" style="width:825px; height:225px;"></div>
+<div id="g3a" style="width:825px; height:250px;"></div>
 
 <script type="text/javascript">
 var sync;
@@ -28,19 +28,11 @@ window.update = function() {
     }
 }
 
-function data(mul, shift) {
-    var arr = [];
-    
-    for (var i = 1; i <= 31; i++) {
-        arr.push([new Date('2015/01/' + i), Math.sin(i * mul) + shift]);
-    }
-    
-    return arr;
-}
+
 
 gs = [
-    new Dygraph(document.getElementById("g1a"), "ebra_201505_201509.csv"),
-    new Dygraph(document.getElementById("g2a"), data(0.2, 2)),
-    new Dygraph(document.getElementById("g3a"), data(0.3, -2))
+    new Dygraph(document.getElementById("g1a"), "ebra_201505_201509.csv", {visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:2}),
+    new Dygraph(document.getElementById("g2a"), "ebra_201505_201509.csv"),
+    new Dygraph(document.getElementById("g3a"), "ebra_201505_201509.csv")
 ];
 </script>
