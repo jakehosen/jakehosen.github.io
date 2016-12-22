@@ -99,11 +99,21 @@ function change2(el) {
   setStatus2();
 }
 
+function myFunction() {
+	var minValue = document.getElementById("min").value;
+	var maxValue = document.getElementById("max").value;
+    g11a.updateOptions({
+    valueRange: [minValue, maxValue]
+    });
+    showYDimensions(g.yAxisRanges());
+	}
+	  
+
 
 
 </script>
 
-	<div id="set_range">
+<div id="set_range">
 	Y-Min: <input type="text" id="min" value=0>
 	Y-Max: <input type="text" id="max" value=1000>
 
