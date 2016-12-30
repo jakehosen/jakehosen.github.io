@@ -1,6 +1,39 @@
 <script type="text/javascript" src="http://dygraphs.com/dygraph-combined.js"></script>
 <script type="text/javascript" src="https://jakehosen.github.io/ms/synchronizer.js"></script>
 
+
+<style type="text/css">
+
+
+#set_range {
+	float:left;
+	width:900px;
+	height:100px;
+	}
+#wrap {
+	clear:both;
+	width:600px;
+	margin:0 auto;
+	}
+#left_col {
+	float:left;
+	display:inline-block;
+	width:33%;
+	}
+#right_col {
+	display:inline-block;
+	width:33%;
+	}
+#center_col {
+	float:right;
+	display:inline-block;
+	width:33%;
+	}
+	
+</style>
+
+
+
       <input type="checkbox" id="chk-sync" onchange="update()"><label for="chk-sync">Sync</label>
 
 <div id="g1a" style="width:825px; height:225px;"></div>
