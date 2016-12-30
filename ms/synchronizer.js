@@ -20,35 +20,41 @@
  *
  * The default is to synchronize both of these.
  *
- * Instead of passing one Dygraph objet as each parameter, you may also pass an
+ * Instead of passing one Dygraph object as each parameter, you may also pass an
  * array of dygraphs:
  *
  *   var sync = Dygraph.synchronize([g1, g2, g3], {
  *      selection: false,
  *      zoom: true
  *   });
+ *
+ * You may also set `range: false` if you wish to only sync the x-axis.
+ * The `range` option has no effect unless `zoom` is true (the default).
  */
 (function() {
 /* global Dygraph:false */
 'use strict';
 
-Dygraph.synchronize = function(/* dygraphs..., opts */) {
+var Dygraph;
+if (window.Dygraph) {
+  Dygraph = window.Dygraph;
+} else if (typeof(module) !== 'undefined') {
+  Dygraph = require('../dygraph');
+}
+
+var synchronize = function(/* dygraphs..., opts */) {
   if (arguments.length === 0) {
     throw 'Invalid invocation of Dygraph.synchronize(). Need >= 1 argument.';
   }
 
-  var OPTIONS = ['selection', 'zoom'];
+  var OPTIONS = ['selection', 'zoom', 'range'];
   var opts = {
     selection: true,
-    zoom: true
+    zoom: true,
+    range: true
   };
   var dygraphs = [];
-
-  var prevCallbacks = {
-    draw: null,
-    highlight: null,
-    unhighlight: null
-  };
+  var prevCallbacks = [];
 
   var parseOpts = function(obj) {
     if (!(obj instanceof Object)) {
@@ -96,12 +102,23 @@ Dygraph.synchronize = function(/* dygraphs..., opts */) {
     throw 'Invalid invocation of Dygraph.synchronize(). ' +
           'Need two or more dygraphs to synchronize.';
   }
-  
+
   var readycount = dygraphs.length;
   for (var i = 0; i < dygraphs.length; i++) {
     var g = dygraphs[i];
     g.ready( function() {
       if (--readycount == 0) {
+        // store original callbacks
+        var callBackTypes = ['drawCallback', 'highlightCallback', 'unhighlightCallback'];
+        for (var j = 0; j < dygraphs.length; j++) {
+          if (!prevCallbacks[j]) {
+            prevCallbacks[j] = {};
+          }
+          for (var k = callBackTypes.length - 1; k >= 0; k--) {
+            prevCallbacks[j][callBackTypes[k]] = dygraphs[j].getFunctionOption(callBackTypes[k]);
+          }
+        }
+
         // Listen for draw, highlight, unhighlight callbacks.
         if (opts.zoom) {
           attachZoomHandlers(dygraphs, opts, prevCallbacks);
@@ -113,18 +130,18 @@ Dygraph.synchronize = function(/* dygraphs..., opts */) {
       }
     });
   }
- 
+
   return {
     detach: function() {
       for (var i = 0; i < dygraphs.length; i++) {
         var g = dygraphs[i];
         if (opts.zoom) {
-          g.updateOptions({drawCallback: prevCallbacks.draw});
+          g.updateOptions({drawCallback: prevCallbacks[i].drawCallback});
         }
         if (opts.selection) {
           g.updateOptions({
-            highlightCallback: prevCallbacks.highlight,
-            unhighlightCallback: prevCallbacks.unhighlight
+            highlightCallback: prevCallbacks[i].highlightCallback,
+            unhighlightCallback: prevCallbacks[i].unhighlightCallback
           });
         }
       }
@@ -136,28 +153,48 @@ Dygraph.synchronize = function(/* dygraphs..., opts */) {
   };
 };
 
+function arraysAreEqual(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  var i = a.length;
+  if (i !== b.length) return false;
+  while (i--) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 function attachZoomHandlers(gs, syncOpts, prevCallbacks) {
   var block = false;
   for (var i = 0; i < gs.length; i++) {
     var g = gs[i];
-    prevCallbacks.draw = g.getFunctionOption('drawCallback');
     g.updateOptions({
       drawCallback: function(me, initial) {
-        if (prevCallbacks.draw) prevCallbacks.draw(me, initial);
         if (block || initial) return;
         block = true;
-        var range = me.xAxisRange();
-        var yrange = me.yAxisRange();
+        var opts = {
+          dateWindow: me.xAxisRange()
+        };
+        if (syncOpts.range) opts.valueRange = me.yAxisRange();
+
         for (var j = 0; j < gs.length; j++) {
-          if (gs[j] == me) continue;
-          gs[j].updateOptions( {
-            dateWindow: range,
-            valueRange: yrange
-          });
+          if (gs[j] == me) {
+            if (prevCallbacks[j] && prevCallbacks[j].drawCallback) {
+              prevCallbacks[j].drawCallback.apply(this, arguments);
+            }
+            continue;
+          }
+
+          // Only redraw if there are new options
+          if (arraysAreEqual(opts.dateWindow, gs[j].getOption('dateWindow')) && 
+              arraysAreEqual(opts.valueRange, gs[j].getOption('valueRange'))) {
+            continue;
+          }
+
+          gs[j].updateOptions(opts);
         }
         block = false;
       }
-    }, false /* no need to redraw */);
+    }, true /* no need to redraw */);
   }
 }
 
@@ -165,19 +202,20 @@ function attachSelectionHandlers(gs, prevCallbacks) {
   var block = false;
   for (var i = 0; i < gs.length; i++) {
     var g = gs[i];
-    prevCallbacks.highlight = g.getFunctionOption('highlightCallback');
-    prevCallbacks.unhighlight = g.getFunctionOption('unhighlightCallback');
+
     g.updateOptions({
       highlightCallback: function(event, x, points, row, seriesName) {
-        if (prevCallbacks.highlight) {
-            prevCallbacks.highlight(event, x, points, row, seriesName);
-        }
         if (block) return;
         block = true;
         var me = this;
         for (var i = 0; i < gs.length; i++) {
-          if (me == gs[i]) continue;
-          var idx = dygraphsBinarySearch(gs[i], x);
+          if (me == gs[i]) {
+            if (prevCallbacks[i] && prevCallbacks[i].highlightCallback) {
+              prevCallbacks[i].highlightCallback.apply(this, arguments);
+            }
+            continue;
+          }
+          var idx = gs[i].getRowForX(x);
           if (idx !== null) {
             gs[i].setSelection(idx, seriesName);
           }
@@ -185,39 +223,24 @@ function attachSelectionHandlers(gs, prevCallbacks) {
         block = false;
       },
       unhighlightCallback: function(event) {
-        if (prevCallbacks.unhighlight) prevCallbacks.unhighlight(event);
         if (block) return;
         block = true;
         var me = this;
         for (var i = 0; i < gs.length; i++) {
-          if (me == gs[i]) continue;
+          if (me == gs[i]) {
+            if (prevCallbacks[i] && prevCallbacks[i].unhighlightCallback) {
+              prevCallbacks[i].unhighlightCallback.apply(this, arguments);
+            }
+            continue;
+          }
           gs[i].clearSelection();
         }
         block = false;
       }
-    });
+    }, true /* no need to redraw */);
   }
 }
 
-// Returns the index corresponding to xVal, or null if there is none.
-function dygraphsBinarySearch(g, xVal) {
-  var low = 0,
-      high = g.numRows() - 1;
-
-  while (low <= high) {
-    var idx = (high + low) >> 1;
-    var x = g.getValue(idx, 0);
-    if (x < xVal) {
-      low = idx + 1;
-    } else if (x > xVal) {
-      high = idx - 1;
-    } else {
-      return idx;
-    }
-  }
-
-  // TODO: give an option to find the closest point, i.e. not demand an exact match.
-  return null;
-}
+Dygraph.synchronize = synchronize;
 
 })();
