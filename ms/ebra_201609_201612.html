@@ -1,5 +1,5 @@
 <script type="text/javascript" src="http://dygraphs.com/dygraph-combined.js"></script>
-<script type="text/javascript" src="https://jakehosen.github.io/ms/synchronizer.js"></script>
+<script type="text/javascript" src="https://raw.githubusercontent.com/danvk/dygraphs/master/src/extras/synchronizer.js"></script>
 
 <style type="text/css">
 
@@ -62,47 +62,47 @@ window.update = function() {
 
 
 gs = [
-    new Dygraph(document.getElementById("g1a"), "ebra_201609_201612.csv", {visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
-    new Dygraph(document.getElementById("g2a"), "ebra_201609_201612.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
-    new Dygraph(document.getElementById("g3a"), "ebra_201609_201612.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75, showRangeSelector:true, interactionModel:Dygraph.defaultInteractionModel})
+    g11a = new Dygraph(document.getElementById("g1a"), "ebra_201609_201612.csv", {visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
+    g22a = new Dygraph(document.getElementById("g2a"), "ebra_201609_201612.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75}),
+    g33a = new Dygraph(document.getElementById("g3a"), "ebra_201609_201612.csv",{visibility:[true,true,true,true,true,true,true,true,true], drawXGrid:false, drawYGrid:false, drawPoints:true, strokeWidth:0, pointSize:1.75, showRangeSelector:true, interactionModel:Dygraph.defaultInteractionModel})
 ];
 
 setStatus();
 
 function setStatus() {
   document.getElementById("visibility").innerHTML =
-    g1a.visibility().toString();
+    g11a.visibility().toString();
 }
 
 function change(el) {
-  g1a.setVisibility(parseInt(el.id), el.checked);
+  g11a.setVisibility(parseInt(el.id), el.checked);
   setStatus();
 }
 
 function setStatus1() {
   document.getElementById("visibility").innerHTML =
-    g2a.visibility().toString();
+    g22a.visibility().toString();
 }
 
 function change1(el) {
-  g2a.setVisibility(parseInt(el.id), el.checked);
+  g22a.setVisibility(parseInt(el.id), el.checked);
   setStatus1();
 }
 
 function setStatus2() {
   document.getElementById("visibility").innerHTML =
-    g3a.visibility().toString();
+    g33a.visibility().toString();
 }
 
 function change2(el) {
-  g3a.setVisibility(parseInt(el.id), el.checked);
+  g33a.setVisibility(parseInt(el.id), el.checked);
   setStatus2();
 }
 
 function myFunction() {
 	var minValue = document.getElementById("min").value;
 	var maxValue = document.getElementById("max").value;
-    g1a.updateOptions({
+    g11a.updateOptions({
     valueRange: [minValue, maxValue]
     });
     showYDimensions(g.yAxisRanges());
@@ -111,7 +111,7 @@ function myFunction() {
 function myFunction1() {
 	var minValue = document.getElementById("min").value;
 	var maxValue = document.getElementById("max").value;
-    g2a.updateOptions({
+    g22a.updateOptions({
     valueRange: [minValue, maxValue]
     });
     showYDimensions(g.yAxisRanges());
@@ -120,7 +120,7 @@ function myFunction1() {
 function myFunction2() {
 	var minValue = document.getElementById("min").value;
 	var maxValue = document.getElementById("max").value;
-    g3a.updateOptions({
+    g33a.updateOptions({
     valueRange: [minValue, maxValue]
     });
     showYDimensions(g.yAxisRanges());
