@@ -59,7 +59,7 @@
              interactionModel: {}
            });
       var g3 = new Dygraph(document.getElementById("div_g3"),
-           NoisyData, { errorBars : true, interactionModel : {
+           NoisyData, { errorBars : true, drawPoints : true, interactionModel : {
         'mousedown' : downV3,
         'mousemove' : moveV3,
         'mouseup' : upV3,
