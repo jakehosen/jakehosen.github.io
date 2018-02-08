@@ -66,7 +66,8 @@
         'click' : clickV3,
         'dblclick' : dblClickV3,
         'mousewheel' : scrollV3
-      }});
+      },underlayCallback : captureCanvas
+                      });
       var g4 = new Dygraph(document.getElementById("div_g4"),
            NoisyData, { errorBars : true, drawPoints : true, interactionModel : {
             'mousedown' : downV4,
