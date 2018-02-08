@@ -59,7 +59,7 @@ window.update = function() {
     }
 }
 
-
+document.addEventListener("click", function() { lastClickedGraph = null; }, false);
 
 gs = [
     aa = new Dygraph(document.getElementById("g1a"), "ebra_201601_201604.csv",{drawPoints : true, interactionModel : {
