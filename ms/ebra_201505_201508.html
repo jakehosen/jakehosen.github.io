@@ -1,3 +1,9 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="http://dygraphs.com/dist/dygraph.css">
+
 <script type="text/javascript" src="http://dygraphs.com/dygraph-combined.js"></script>
 <script type="text/javascript" src="https://jakehosen.github.io/ms/synchronizer.js"></script>
 <script type="text/javascript" src="https://jakehosen.github.io/ms/interaction.js"></script>
@@ -30,7 +36,8 @@
 	}
 	
 </style>
-
+	</head>
+<body>
 
       <input type="checkbox" id="chk-sync" onchange="update()"><label for="chk-sync">Sync</label>
 
@@ -58,7 +65,9 @@ window.update = function() {
         }	
     }
 }
-
+document.addEventListener("mousewheel", function() {
+	lastClickedGraph = null;
+	}, false);
 document.addEventListener("click", function() { lastClickedGraph = null; }, false);
 
 gs = [
@@ -222,6 +231,7 @@ function myFunction2() {
     </div>
 </div>
 
-
+</body>
+</html>
 
 
