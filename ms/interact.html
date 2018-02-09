@@ -5,7 +5,8 @@
     <link rel="stylesheet" href="http://dygraphs.com/dist/dygraph.css">
     <title>interaction model</title>
     <script type="text/javascript" src="http://dygraphs.com/dist/dygraph.js"></script>
-
+    
+    <script type="text/javascript" src="https://jakehosen.github.io/ms/synchronizer.js"></script>
     <script type="text/javascript" src="http://dygraphs.com/tests/data.js"></script>
     <script type="text/javascript" src="http://jakehosen.github.io/ms/interaction2.js"></script>
   </head>
@@ -71,20 +72,20 @@ hiddenElement.click();
       document.addEventListener("click", function() { lastClickedGraph = null; }, false);
       var s = document.getElementById("g2_console");
       var g2 = new Dygraph(document.getElementById("div_g2"),
-           "FARM_Sonde_Assembled_temp_ph.csv", { errorBars : true, drawPoints : true, interactionModel : {
-            'mousedown' : downV4,
-            'mousemove' : moveV4,
-            'mouseup' : upV4,
-            'dblclick' : dblClickV4,
+           "FARM_Sonde_Assembled_cdom_turbidity.csv", { errorBars : true, drawPoints : true, interactionModel : {
+            'mousedown' : downV5,
+            'mousemove' : moveV5,
+            'mouseup' : upV5,
+            'dblclick' : dblClickV5,
            }, showRangeSelector:true, 
            underlayCallback : captureCanvas
       });
       var g3 = new Dygraph(document.getElementById("div_g3"),
-           "FARM_Sonde_Assembled_temp_ph.csv", { errorBars : true, drawPoints : true, interactionModel : {
-            'mousedown' : downV4,
-            'mousemove' : moveV4,
-            'mouseup' : upV4,
-            'dblclick' : dblClickV4,
+           "FARM_Sonde_Assembled_cond_do.csv", { errorBars : true, drawPoints : true, interactionModel : {
+            'mousedown' : downV6,
+            'mousemove' : moveV6,
+            'mouseup' : upV6,
+            'dblclick' : dblClickV6,
            }, showRangeSelector:true, 
            underlayCallback : captureCanvas
       });
