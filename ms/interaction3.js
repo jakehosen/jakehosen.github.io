@@ -237,10 +237,144 @@ function undrawV4(x, y) {
 }
 
 
-
 function captureCanvas(canvas, area, g) {
   v4Canvas = canvas;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+var v5Active = false;
+var v5Canvas = null;
+
+function downV5(event, g, context) {
+  context.initializeMouseDown(event, g, context);
+  v5Active = true;
+  moveV5(event, g, context); // in case the mouse went down on a data point.
+}
+
+var processed5 = [];
+
+function moveV5(event, g, context) {
+  var RANGE = 7;
+
+  if (v5Active) {
+    var graphPos = Dygraph.findPos(g.graphDiv);
+    var canvasx = Dygraph.pageX(event) - graphPos.x;
+    var canvasy = Dygraph.pageY(event) - graphPos.y;
+
+    var rows = g.numRows();
+    // Row layout:
+    // [date, [val1, stdev1], [val2, stdev2]]
+    for (var row = 0; row < rows; row++) {
+      var date = g.getValue(row, 0);
+      var x = g.toDomCoords(date, null)[0];
+      var diff = Math.abs(canvasx - x);
+      if (diff < RANGE) {
+        for (var col = 1; col < 3; col++) {
+          // TODO(konigsberg): these will throw exceptions as data is removed.
+          var vals =  g.getValue(row, col);
+          var vals2 =  g.getValue(row, col);          
+          if (vals == null) { continue; }
+          var val = vals[0];
+          var y = g.toDomCoords(null, val)[1];
+          var diff2 = Math.abs(canvasy - y);
+          if (diff2 < RANGE) {
+            var found = false;
+            for (var i in processed5) {
+              var stored = processed5[i];
+//              if(stored[0] == row && stored[1] == col) {
+              if(stored[2] == date && stored[1] == col) {              
+                found = true;
+                undrawV5(x, y);
+                for (var i=processed5.length-1; i>=0; i--) {
+                  var stored2 = processed5[i];                  
+                  if (stored2[2] == date && stored2[1] == col) {
+                    processed5.splice(i, 1);
+// break;          //<-- Uncomment  if only the first term has to be removed
+                          }
+                      }
+
+                break;
+              }
+            }
+            if (!found) {
+              processed5.push([row, col, date, vals2[1]]);
+              drawV5(x, y);
+            }
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+function upV5(event, g, context) {
+  if (v5Active) {
+    v5Active = false;
+  }
+}
+
+function dblClickV5(event, g, context) {
+  restorePositioning(g);
+}
+
+function drawV5(x, y) {
+  var ctx = v5Canvas;
+  
+  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#FFFF00";
+  ctx.beginPath();
+  ctx.arc(x,y,5,0,Math.PI*2,true);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fill();
+}
+
+function undrawV5(x, y) {
+  var ctx = v5Canvas;
+  
+  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#f9f9f4";
+  ctx.beginPath();
+  ctx.arc(x,y,5,0,Math.PI*2,true);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fill();
+}
+
+
+
+function captureCanvas(canvas, area, g) {
+  v5Canvas = canvas;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function restorePositioning(g) {
   g.updateOptions({
