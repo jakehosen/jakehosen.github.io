@@ -164,7 +164,7 @@ function moveV4(event, g, context) {
       var x = g.toDomCoords(date, null)[0];
       var diff = Math.abs(canvasx - x);
       if (diff < RANGE) {
-        for (var col = 1; col < collies; col++) {
+        for (var col = 1; col < 3; col++) {
           // TODO(konigsberg): these will throw exceptions as data is removed.
           var vals =  g.getValue(row, col);
           var vals2 =  g.getValue(row, col);          
