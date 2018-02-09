@@ -13,12 +13,12 @@
     <table border='1'>
     <tr><td>
     <b>Default interaction model</b>
-    <div id="div_g" style="width:600px; height:300px;"></div>
+    <div id="div_g" style="width:800px; height:300px;"></div>
     </td><td>Zoom: click-drag<br/>Pan: shift-click-drag<br/>Restore zoom level: double-click<br/>
     </td></tr>
     <tr><td>
     <b>No interaction model</b>
-    <div id="div_g2" style="width:600px; height:300px;"></div>
+    <div id="div_g2" style="width:800px; height:300px;"></div>
     </td><td>Click and drag all you like, it won't do anything!
     <div id="g2_console"></div>
     </td></tr>
@@ -26,7 +26,7 @@
     <b>Custom interaction model</b>
 
     <input type="button" value="Restore position" onclick="restorePositioning(g3)">
-    <div id="div_g3" style="width:600px; height:300px;"></div>
+    <div id="div_g3" style="width:800px; height:300px;"></div>
     </td><td>
     Zoom in: double-click, scroll wheel<br/>
     Zoom out: ctrl-double-click, scroll wheel<br/>
@@ -36,7 +36,7 @@
     </td></tr>
     <tr><td>
     <b>Fun model!</b>
-    <div id="div_g4" style="width:600px; height:300px;"></div>
+    <div id="div_g4" style="width:800px; height:300px;"></div>
     </td><td>
 
 <p>Click the button to trigger a function that will output "Hello World" in a p element with id="demo".</p>
@@ -89,7 +89,7 @@ hiddenElement.click();
       },underlayCallback : captureCanvas
                       });
       var g4 = new Dygraph(document.getElementById("div_g4"),
-           "FARM_Sonde_Assembled_temp_ph.csv", { errorBars : true, drawPoints : true, interactionModel : {
+           "FARM_Sonde_Assembled_temp_ph_2.csv", { errorBars : true, drawPoints : true, interactionModel : {
             'mousedown' : downV4,
             'mousemove' : moveV4,
             'mouseup' : upV4,
