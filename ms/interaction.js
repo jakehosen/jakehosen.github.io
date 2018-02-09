@@ -160,13 +160,13 @@ function moveV4(event, g, context) {
     // [date, [val1, stdev1], [val2, stdev2]]
     for (var row = 0; row < rows; row++) {
       var date = g.getValue(row, 0);
-      var vary = g.getValue(row, col);
       var x = g.toDomCoords(date, null)[0];
       var diff = Math.abs(canvasx - x);
       if (diff < RANGE) {
         for (var col = 1; col < 3; col++) {
           // TODO(konigsberg): these will throw exceptions as data is removed.
           var vals =  g.getValue(row, col);
+          var vals2 =  g.getValue(row, col);          
           if (vals == null) { continue; }
           var val = vals[0];
           var y = g.toDomCoords(null, val)[1];
@@ -183,7 +183,7 @@ function moveV4(event, g, context) {
               }
             }
             if (!found) {
-              processed.push([row, col, date, vary[1]]);
+              processed.push([row, col, date, vals2[1]]);
               drawV4(x, y);
             }
             return;
