@@ -38,9 +38,29 @@
     <b>Fun model!</b>
     <div id="div_g4" style="width:600px; height:300px;"></div>
     </td><td>
-    Keep the mouse button pressed, and hover over all points
-    to mark them.   
-    </td></tr>
+
+<p>Click the button to trigger a function that will output "Hello World" in a p element with id="demo".</p>
+
+<button onclick="myFunction()">Click me</button>
+
+<p id="demo"></p>
+
+<script>
+//var textToSave = 'this is a test';
+
+function myFunction() {
+
+var hiddenElement = document.createElement('a');
+
+hiddenElement.href = 'data:attachment/text,' + encodeURI(processed);
+hiddenElement.target = '_blank';
+hiddenElement.download = 'myFile.txt';
+hiddenElement.click();  
+ 
+}
+      </script>   
+      
+      </td></tr>
 
     </table>
         
@@ -64,6 +84,7 @@
         'mousemove' : moveV3,
         'mouseup' : upV3,
         'dblclick' : dblClickV3,
+        'click' : clickV3,             
         'mousewheel' : scrollV3
       },underlayCallback : captureCanvas
                       });
