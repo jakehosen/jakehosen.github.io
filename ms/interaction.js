@@ -156,6 +156,7 @@ function moveV4(event, g, context) {
     var canvasy = Dygraph.pageY(event) - graphPos.y;
 
     var rows = g.numRows();
+    var collies = g.numCols();    
     // Row layout:
     // [date, [val1, stdev1], [val2, stdev2]]
     for (var row = 0; row < rows; row++) {
@@ -163,7 +164,7 @@ function moveV4(event, g, context) {
       var x = g.toDomCoords(date, null)[0];
       var diff = Math.abs(canvasx - x);
       if (diff < RANGE) {
-        for (var col = 1; col < 3; col++) {
+        for (var col = 1; col <= collies; col++) {
           // TODO(konigsberg): these will throw exceptions as data is removed.
           var vals =  g.getValue(row, col);
           var vals2 =  g.getValue(row, col);          
