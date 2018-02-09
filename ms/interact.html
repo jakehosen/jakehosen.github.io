@@ -69,25 +69,25 @@ hiddenElement.click();
         lastClickedGraph = null;
       }, false);
       document.addEventListener("click", function() { lastClickedGraph = null; }, false);
-      var g = new Dygraph(document.getElementById("div_g"),
-           NoisyData, { errorBars : true });
       var s = document.getElementById("g2_console");
       var g2 = new Dygraph(document.getElementById("div_g2"),
-           NoisyData,
-           {
-             errorBars : true,
-             interactionModel: {}
-           });
+           "FARM_Sonde_Assembled_temp_ph.csv", { errorBars : true, drawPoints : true, interactionModel : {
+            'mousedown' : downV4,
+            'mousemove' : moveV4,
+            'mouseup' : upV4,
+            'dblclick' : dblClickV4,
+           }, showRangeSelector:true, 
+           underlayCallback : captureCanvas
+      });
       var g3 = new Dygraph(document.getElementById("div_g3"),
-           NoisyData, { errorBars : true, drawPoints : true, interactionModel : {
-        'mousedown' : downV3,
-        'mousemove' : moveV3,
-        'mouseup' : upV3,
-        'dblclick' : dblClickV3,
-        'click' : clickV3,             
-        'mousewheel' : scrollV3
-      },underlayCallback : captureCanvas
-                      });
+           "FARM_Sonde_Assembled_temp_ph.csv", { errorBars : true, drawPoints : true, interactionModel : {
+            'mousedown' : downV4,
+            'mousemove' : moveV4,
+            'mouseup' : upV4,
+            'dblclick' : dblClickV4,
+           }, showRangeSelector:true, 
+           underlayCallback : captureCanvas
+      });
       var g4 = new Dygraph(document.getElementById("div_g4"),
            "FARM_Sonde_Assembled_temp_ph.csv", { errorBars : true, drawPoints : true, interactionModel : {
             'mousedown' : downV4,
