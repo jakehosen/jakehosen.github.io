@@ -179,6 +179,14 @@ function moveV4(event, g, context) {
               if(stored[2] == date && stored[1] == col) {              
                 found = true;
                 undrawV4(x, y);
+                for (var i=processed.length-1; i>=0; i--) {
+                  var stored2 = processed[i];                  
+                  if (stored2[2] == date && stored2[1] == col) {
+                    processed.splice(i, 1);
+// break;          //<-- Uncomment  if only the first term has to be removed
+                          }
+                      }
+
                 break;
               }
             }
