@@ -89,13 +89,13 @@ hiddenElement.click();
       },underlayCallback : captureCanvas
                       });
       var g4 = new Dygraph(document.getElementById("div_g4"),
-//           "ebra_201505_201508_8.csv", { errorBars : true, drawPoints : true, interactionModel : {
-           NoisyData, { errorBars : true, drawPoints : true, interactionModel : {                           
+           NoisyData, { errorBars : true, drawPoints : true, interactionModel : {
             'mousedown' : downV4,
             'mousemove' : moveV4,
             'mouseup' : upV4,
             'dblclick' : dblClickV4,
-           }, underlayCallback : captureCanvas
+           },
+           underlayCallback : captureCanvas
       });
     </script>
 
