@@ -160,7 +160,7 @@ function moveV4(event, g, context) {
     // [date, [val1, stdev1], [val2, stdev2]]
     for (var row = 0; row < rows; row++) {
       var date = g.getValue(row, 0);
-      var vary = g.getValue(0, col);      
+      var vary = g.getValue(row, col);
       var x = g.toDomCoords(date, null)[0];
       var diff = Math.abs(canvasx - x);
       if (diff < RANGE) {
@@ -183,7 +183,7 @@ function moveV4(event, g, context) {
               }
             }
             if (!found) {
-              processed.push([row, col, date]);
+              processed.push([row, col, date, vary[1]]);
               drawV4(x, y);
             }
             return;
