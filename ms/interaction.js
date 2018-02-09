@@ -181,7 +181,7 @@ function moveV4(event, g, context) {
               }
             }
             if (!found) {
-              processed.push([row, col]);
+              processed.push([row, col, date]);
               drawV4(x, y);
             }
             return;
