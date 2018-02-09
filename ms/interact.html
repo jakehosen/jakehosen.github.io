@@ -84,7 +84,6 @@ hiddenElement.click();
         
     <script type="text/javascript">
       
- sync = Dygraph.synchronize(g2,g3,g4,{zoom:true});      
       
       document.addEventListener("mousewheel", function() {
         lastClickedGraph = null;
@@ -118,6 +117,8 @@ hiddenElement.click();
            }, showRangeSelector:true, 
            underlayCallback : captureCanvas
       });
+      
+  sync = Dygraph.synchronize(g2,g3,g4,{zoom:true});      
     </script>
 
   </body>
