@@ -15,32 +15,58 @@
     <tr><td>
     <b>CDOM/Turbidity</b>
     <div id="div_g2" style="width:1300px; height:300px;"></div>
-    </td><td>Click and drag all you like, it won't do anything!
-    <div id="g2_console"></div>
+    </td><td>
+
+<p></p>
+<button onclick="myFunction()">Get Flags</button>
+<p id="demo"></p>
+<script>
+//var textToSave = 'this is a test';
+function myFunction() {
+var hiddenElement = document.createElement('a');
+hiddenElement.href = 'data:attachment/text,' + encodeURI(processed5);
+hiddenElement.target = '_blank';
+hiddenElement.download = 'cdom_turb_farm_2015_flags.csv';
+hiddenElement.click();  
+}
+      </script>   
+      
+      
+      
     </td></tr>
     <tr><td>
-    <b>Custom interaction model</b>
+    <b>DO/Cond</b>
 
     <input type="button" value="Restore position" onclick="restorePositioning(g3)">
     <div id="div_g3" style="width:1300px; height:300px;"></div>
     </td><td>
-    Zoom in: double-click, scroll wheel<br/>
-    Zoom out: ctrl-double-click, scroll wheel<br/>
-    Standard Zoom: shift-click-drag
-    Standard Pan: click-drag<br/>
-    Restore zoom level: press button<br/>
+
+
+<p></p>
+<button onclick="myFunction()">Get Flags</button>
+<p id="demo"></p>
+<script>
+//var textToSave = 'this is a test';
+function myFunction() {
+var hiddenElement = document.createElement('a');
+hiddenElement.href = 'data:attachment/text,' + encodeURI(processed6);
+hiddenElement.target = '_blank';
+hiddenElement.download = 'do_cond_farm_2015_flags.csv';
+hiddenElement.click();  
+}
+      </script>   
+      
+      
+      
     </td></tr>
     <tr><td>
-    <b>Fun model!</b>
+    <b>Temp/pH</b>
     <div id="div_g4" style="width:1300px; height:300px;"></div>
     </td><td>
 
 <p></p>
-
 <button onclick="myFunction()">Get Flags</button>
-
 <p id="demo"></p>
-
 <script>
 //var textToSave = 'this is a test';
 function myFunction() {
@@ -49,7 +75,6 @@ hiddenElement.href = 'data:attachment/text,' + encodeURI(processed);
 hiddenElement.target = '_blank';
 hiddenElement.download = 'temp_ph_farm_2015_flags.csv';
 hiddenElement.click();  
- 
 }
       </script>   
       
