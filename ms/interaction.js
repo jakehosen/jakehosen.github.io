@@ -176,13 +176,13 @@ function moveV4(event, g, context) {
               var stored = processed[i];
               if(stored[0] == row && stored[1] == col) {
                 found = true;
+                undrawV4(x, y);
                 break;
               }
             }
             if (!found) {
               processed.push([row, col]);
               drawV4(x, y);
-              document.write(x, y);
             }
             return;
           }
@@ -204,7 +204,7 @@ function dblClickV4(event, g, context) {
 
 function drawV4(x, y) {
   var ctx = v4Canvas;
-
+  
   ctx.strokeStyle = "#000000";
   ctx.fillStyle = "#FFFF00";
   ctx.beginPath();
@@ -213,6 +213,20 @@ function drawV4(x, y) {
   ctx.stroke();
   ctx.fill();
 }
+
+function undrawV4(x, y) {
+  var ctx = v4Canvas;
+  
+  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#f9f9f4";
+  ctx.beginPath();
+  ctx.arc(x,y,5,0,Math.PI*2,true);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fill();
+}
+
+
 
 function captureCanvas(canvas, area, g) {
   v4Canvas = canvas;
