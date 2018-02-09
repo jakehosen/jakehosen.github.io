@@ -354,7 +354,7 @@ function undrawV5(x, y) {
 
 
 
-function captureCanvas(canvas, area, g) {
+function captureCanvas5(canvas, area, g) {
   v5Canvas = canvas;
 }
 
@@ -366,6 +366,118 @@ function captureCanvas(canvas, area, g) {
 
 
 
+
+
+
+
+
+
+
+var v6Active = false;
+var v6Canvas = null;
+
+function downV5(event, g, context) {
+  context.initializeMouseDown(event, g, context);
+  v6Active = true;
+  moveV5(event, g, context); // in case the mouse went down on a data point.
+}
+
+var processed6 = [];
+
+function moveV5(event, g, context) {
+  var RANGE = 7;
+
+  if (v6Active) {
+    var graphPos = Dygraph.findPos(g.graphDiv);
+    var canvasx = Dygraph.pageX(event) - graphPos.x;
+    var canvasy = Dygraph.pageY(event) - graphPos.y;
+
+    var rows = g.numRows();
+    // Row layout:
+    // [date, [val1, stdev1], [val2, stdev2]]
+    for (var row = 0; row < rows; row++) {
+      var date = g.getValue(row, 0);
+      var x = g.toDomCoords(date, null)[0];
+      var diff = Math.abs(canvasx - x);
+      if (diff < RANGE) {
+        for (var col = 1; col < 3; col++) {
+          // TODO(konigsberg): these will throw exceptions as data is removed.
+          var vals =  g.getValue(row, col);
+          var vals2 =  g.getValue(row, col);          
+          if (vals == null) { continue; }
+          var val = vals[0];
+          var y = g.toDomCoords(null, val)[1];
+          var diff2 = Math.abs(canvasy - y);
+          if (diff2 < RANGE) {
+            var found = false;
+            for (var i in processed6) {
+              var stored = processed6[i];
+//              if(stored[0] == row && stored[1] == col) {
+              if(stored[2] == date && stored[1] == col) {              
+                found = true;
+                undrawV5(x, y);
+                for (var i=processed6.length-1; i>=0; i--) {
+                  var stored2 = processed6[i];                  
+                  if (stored2[2] == date && stored2[1] == col) {
+                    processed6.splice(i, 1);
+// break;          //<-- Uncomment  if only the first term has to be removed
+                          }
+                      }
+
+                break;
+              }
+            }
+            if (!found) {
+              processed6.push([row, col, date, vals2[1]]);
+              drawV5(x, y);
+            }
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+function upV5(event, g, context) {
+  if (v6Active) {
+    v6Active = false;
+  }
+}
+
+function dblClickV5(event, g, context) {
+  restorePositioning(g);
+}
+
+function drawV5(x, y) {
+  var ctx = v6Canvas;
+  
+  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#FFFF00";
+  ctx.beginPath();
+  ctx.arc(x,y,5,0,Math.PI*2,true);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fill();
+}
+
+function undrawV5(x, y) {
+  var ctx = v6Canvas;
+  
+  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#f9f9f4";
+  ctx.beginPath();
+  ctx.arc(x,y,5,0,Math.PI*2,true);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fill();
+}
+
+
+
+function captureCanvas6(canvas, area, g) {
+  v6Canvas = canvas;
+}
 
 
 
