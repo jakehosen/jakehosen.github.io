@@ -182,6 +182,7 @@ function moveV4(event, g, context) {
             if (!found) {
               processed.push([row, col]);
               drawV4(x, y);
+              document.write(x, y);
             }
             return;
           }
