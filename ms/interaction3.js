@@ -373,18 +373,24 @@ function captureCanvas5(canvas, area, g) {
 
 
 
+
+
+
+
+
+
 var v6Active = false;
 var v6Canvas = null;
 
-function downV5(event, g, context) {
+function downV6(event, g, context) {
   context.initializeMouseDown(event, g, context);
   v6Active = true;
-  moveV5(event, g, context); // in case the mouse went down on a data point.
+  moveV6(event, g, context); // in case the mouse went down on a data point.
 }
 
 var processed6 = [];
 
-function moveV5(event, g, context) {
+function moveV6(event, g, context) {
   var RANGE = 7;
 
   if (v6Active) {
@@ -415,7 +421,7 @@ function moveV5(event, g, context) {
 //              if(stored[0] == row && stored[1] == col) {
               if(stored[2] == date && stored[1] == col) {              
                 found = true;
-                undrawV5(x, y);
+                undrawV6(x, y);
                 for (var i=processed6.length-1; i>=0; i--) {
                   var stored2 = processed6[i];                  
                   if (stored2[2] == date && stored2[1] == col) {
@@ -429,7 +435,7 @@ function moveV5(event, g, context) {
             }
             if (!found) {
               processed6.push([row, col, date, vals2[1]]);
-              drawV5(x, y);
+              drawV6(x, y);
             }
             return;
           }
@@ -439,17 +445,17 @@ function moveV5(event, g, context) {
   }
 }
 
-function upV5(event, g, context) {
+function upV6(event, g, context) {
   if (v6Active) {
     v6Active = false;
   }
 }
 
-function dblClickV5(event, g, context) {
+function dblClickV6(event, g, context) {
   restorePositioning(g);
 }
 
-function drawV5(x, y) {
+function drawV6(x, y) {
   var ctx = v6Canvas;
   
   ctx.strokeStyle = "#000000";
@@ -461,7 +467,7 @@ function drawV5(x, y) {
   ctx.fill();
 }
 
-function undrawV5(x, y) {
+function undrawV6(x, y) {
   var ctx = v6Canvas;
   
   ctx.strokeStyle = "#000000";
@@ -478,6 +484,8 @@ function undrawV5(x, y) {
 function captureCanvas6(canvas, area, g) {
   v6Canvas = canvas;
 }
+
+
 
 
 
