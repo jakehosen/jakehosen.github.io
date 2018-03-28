@@ -71,7 +71,7 @@
           Jake Hosen
         </a>
       </h1>
-      <p class="lead"><p>Postdoctoral Associate</p> <p><a href="http://environment.yale.edu/raymond-lab/">Raymond Lab</a>:<br> Yale School of Forestry & Environmental Studies</p> <p><a href="mailto:jake.hosen@yale.edu">E-Mail</a><br><a href="/files/Jacob_Hosen_CV_092015.pdf">C.V.</a><br><a href="http://www.researchgate.net/profile/Jacob_Hosen">Research Gate</a><br><a href="https://scholar.google.com/citations?user=vsRFxUEAAAAJ&hl=en">Google Scholar</a><br><a href="http://www.twitter.com/jakehosen">Twitter</a></p>
+      <p class="lead"><p>Postdoctoral Associate</p> <p><a href="http://environment.yale.edu/raymond-lab/">Raymond Lab</a>:<br> Yale School of Forestry & Environmental Studies</p> <p><a href="mailto:jake.hosen@yale.edu">E-Mail</a><br><a href="/files/Hosen_CV_20180320.pdf">C.V.</a><br><a href="http://www.researchgate.net/profile/Jacob_Hosen">Research Gate</a><br><a href="https://scholar.google.com/citations?user=vsRFxUEAAAAJ&hl=en">Google Scholar</a><br><a href="http://www.twitter.com/jakehosen">Twitter</a></p>
     </div>
 
 
