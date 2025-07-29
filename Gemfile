@@ -34,4 +34,21 @@ gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
 
 gem "github-pages", group: :jekyll_plugins
+
+source "https://rubygems.org"
+
+gem "jekyll", "~> 4.3"
 gem "jekyll-remote-theme"
+gem "jekyll-feed"
+gem "jekyll-sitemap"
+gem "jekyll-paginate"
+gem "jekyll-include-cache"
+gem "webrick" # Required for Ruby 3.0+
+
+group :jekyll_plugins do
+  gem "jekyll-remote-theme"
+  gem "jekyll-feed"
+  gem "jekyll-sitemap"
+  gem "jekyll-paginate"
+  gem "jekyll-include-cache"
+end
