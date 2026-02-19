@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Nitrogen Uptake Model</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f1eb;
+            --panel: #ffffff;
+            --accent: #1a6b5a;
+            --accent-light: #e0f0ec;
+            --text: #2c2c2c;
+            --text-muted: #6b6b6b;
+            --border: #d4cfc6;
+            --stream-blue: #3a7ca5;
+            --warning: #c45d3e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--accent);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 3px solid #145447;
+        }
+
+        .header h1 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 0.3rem;
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 0;
+        }
+
+        .controls-panel {
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .controls-panel h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .param-group {
+            margin-bottom: 1.4rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid #eae7e0;
+        }
+
+        .param-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.4rem;
+        }
+
+        .param-label label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .param-label .unit {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .param-value {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .save-section {
+            margin-top: 0.5rem;
+            padding-top: 1.2rem;
+            border-top: 2px solid var(--accent-light);
+        }
+
+        .preset-group {
+            background: #f9f8f5;
+            margin: 0 -1.5rem 1.4rem -1.5rem;
+            padding: 1rem 1.5rem 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent-light);
+        }
+
+        .preset-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+
+        .preset-select {
+            flex: 1;
+            padding: 0.45rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .preset-select:focus {
+            border-color: var(--accent);
+        }
+
+        .flow-toggle {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .flow-btn {
+            padding: 0.45rem 0.65rem;
+            border: none;
+            background: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .flow-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .flow-btn:not(.active):hover {
+            background: #f0efec;
+        }
+
+        .preset-hint {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+            font-style: italic;
+            min-height: 1rem;
+        }
+
+        .save-section h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--accent);
+        }
+
+        .scenario-label-input {
+            width: 100%;
+            padding: 0.5rem 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .scenario-label-input:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.55rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-save {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-save:hover { background: #145a4b; }
+
+        .btn-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: #eae7e0;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .btn-secondary:hover { background: #ddd9d0; }
+
+        .btn-danger {
+            background: #fce8e3;
+            color: var(--warning);
+            flex: 1;
+        }
+
+        .btn-danger:hover { background: #f8d5cc; }
+
+        .output-panel {
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            overflow-y: auto;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.8rem;
+        }
+
+        .metric-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+        }
+
+        .metric-card .metric-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .metric-card .metric-value {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .metric-card .metric-unit {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .plot-container {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #plot-area {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .equation-box {
+            background: var(--accent-light);
+            border: 1px solid #b8ddd4;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #1a5548;
+        }
+
+        .equation-box code {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            background: rgba(255,255,255,0.6);
+            padding: 0.1em 0.35em;
+            border-radius: 3px;
+        }
+
+        .loading-msg {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Comparison Table */
+        .table-section {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            background: #fafaf7;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-header h3 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .table-empty {
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        .comparison-table thead {
+            background: #f5f4f0;
+        }
+
+        .comparison-table th {
+            padding: 0.55rem 0.6rem;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .comparison-table th:first-child,
+        .comparison-table th:nth-child(2) {
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 0.5rem 0.6rem;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .comparison-table td:first-child {
+            text-align: center;
+            width: 36px;
+        }
+
+        .comparison-table td:nth-child(2) {
+            text-align: left;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .comparison-table tbody tr:hover {
+            background: #fafaf7;
+        }
+
+        .comparison-table .output-col {
+            background: var(--accent-light);
+            font-weight: 600;
+        }
+
+        .comparison-table thead .output-col {
+            background: #d0ebe4;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+
+        .delete-btn:hover {
+            color: var(--warning);
+        }
+
+        @media (max-width: 900px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Stream Nitrogen Uptake Model</h1>
+    <p>Exponential decline of dissolved inorganic nitrogen over a 1 km reach</p>
+</div>
+
+<div class="app-layout">
+    <div class="controls-panel">
+        <h2>Model Parameters</h2>
+
+        <div class="param-group preset-group">
+            <div class="param-label">
+                <label><strong>Stream presets</strong></label>
+            </div>
+            <div class="preset-row">
+                <select id="stream-order" class="preset-select">
+                    <option value="">Stream order…</option>
+                    <option value="1">1st order</option>
+                    <option value="2">2nd order</option>
+                    <option value="3">3rd order</option>
+                    <option value="4">4th order</option>
+                    <option value="5">5th order</option>
+                    <option value="6">6th order</option>
+                    <option value="7">7th order</option>
+                </select>
+                <div class="flow-toggle">
+                    <button class="flow-btn active" id="btn-low-flow" data-flow="low">Low flow</button>
+                    <button class="flow-btn" id="btn-high-flow" data-flow="high">High flow</button>
+                </div>
+            </div>
+            <div class="preset-hint" id="preset-hint"></div>
+        </div>
+
+        <div class="param-group">
+            <div class="param-label">
+                <label for="vf">Uptake velocity (V<sub>f</sub>)</label>
+                <span class="unit">mm min⁻¹</span>
+            </div>
+            <div class="param-value" id="vf-display">0.10</div>
+            <input type="range" id="vf" min="0.01" max="1.0" step="0.01" value="0.10">
+        </div>
+
+        <div class="param-group">
+            <div class="param-label">
+                <label for="width">Stream width (w)</label>
+                <span class="unit">m</span>
+            </div>
+            <div class="param-value" id="width-display">5.0</div>
+            <input type="range" id="width" min="0.5" max="120" step="0.5" value="5.0">
+        </div>
+
+        <div class="param-group">
+            <div class="param-label">
+                <label for="depth">Stream depth (d)</label>
+                <span class="unit">m</span>
+            </div>
+            <div class="param-value" id="depth-display">0.30</div>
+            <input type="range" id="depth" min="0.05" max="4.0" step="0.05" value="0.30">
+        </div>
+
+        <div class="param-group">
+            <div class="param-label">
+                <label for="velocity">Flow velocity (v)</label>
+                <span class="unit">m s⁻¹</span>
+            </div>
+            <div class="param-value" id="velocity-display">0.30</div>
+            <input type="range" id="velocity" min="0.01" max="2.0" step="0.01" value="0.30">
+        </div>
+
+        <div class="param-group">
+            <div class="param-label">
+                <label for="c0">Initial N concentration (C₀)</label>
+                <span class="unit">mg L⁻¹</span>
+            </div>
+            <div class="param-value" id="c0-display">2.00</div>
+            <input type="range" id="c0" min="0.1" max="20.0" step="0.1" value="2.0">
+        </div>
+
+        <div class="equation-box">
+            <strong>Model:</strong><br>
+            Uptake length: <code>S<sub>w</sub> = (v · d) / V<sub>f</sub></code><br>
+            Concentration: <code>C(x) = C₀ · e<sup>−x/S<sub>w</sub></sup></code><br>
+            Discharge: <code>Q = v · w · d</code><br>
+            Uptake rate: <code>U = V<sub>f</sub> · C</code>
+        </div>
+
+        <div class="save-section">
+            <h2>Save Scenario</h2>
+            <input type="text" id="scenario-label" class="scenario-label-input" placeholder="e.g. Headwater stream, baseflow" maxlength="50">
+            <button class="btn btn-save" id="btn-save">Save current scenario</button>
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="btn-csv">Download CSV</button>
+                <button class="btn btn-danger" id="btn-clear">Clear all</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="output-panel">
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-title">Uptake Length (S<sub>w</sub>)</div>
+                <div class="metric-value" id="sw-value">—</div>
+                <div class="metric-unit">meters</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Discharge (Q)</div>
+                <div class="metric-value" id="q-value">—</div>
+                <div class="metric-unit">m³ s⁻¹</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">C at 1 km</div>
+                <div class="metric-value" id="c1km-value">—</div>
+                <div class="metric-unit">mg L⁻¹</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">% N Retained</div>
+                <div class="metric-value" id="pct-value">—</div>
+                <div class="metric-unit">over 1 km</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Daily N Removed</div>
+                <div class="metric-value" id="daily-value">—</div>
+                <div class="metric-unit" id="daily-unit">g d⁻¹</div>
+            </div>
+        </div>
+
+        <div class="plot-container">
+            <div id="plot-area">
+                <p class="loading-msg">Loading Python environment…</p>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <h3>Scenario Comparison</h3>
+                <span id="row-count" style="font-size:0.75rem; color:#999;"></span>
+            </div>
+            <div id="table-container">
+                <p class="table-empty">No saved scenarios yet. Adjust parameters and click "Save current scenario."</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="py" config='{"packages": ["numpy", "matplotlib"]}'>
+import numpy as np
+import matplotlib
+matplotlib.use('AGG')
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+from js import document, Blob, URL
+from pyodide.ffi import create_proxy
+
+# ── State ──
+saved_scenarios = []
+scenario_counter = [0]
+
+def get_val(id):
+    return float(document.getElementById(id).value)
+
+def update_display(id, val, fmt=".2f"):
+    document.getElementById(id).textContent = format(val, fmt)
+
+def compute_model():
+    """Compute model outputs from current slider values."""
+    vf_mm_min = get_val("vf")
+    width = get_val("width")
+    depth = get_val("depth")
+    velocity = get_val("velocity")
+    c0 = get_val("c0")
+
+    vf_m_s = vf_mm_min / 1000.0 / 60.0
+    Q = velocity * width * depth
+    Sw = (velocity * depth) / vf_m_s
+
+    x = np.linspace(0, 1000, 500)
+    C = c0 * np.exp(-x / Sw)
+    c_end = float(C[-1])
+    pct_retained = (1 - c_end / c0) * 100
+
+    # Total daily N removed (g/d)
+    # Mass flux: C (mg/L) * Q (m³/s) * 1000 (L/m³) = mg/s
+    # Removal = (C0 - C_end) * Q * 1000 * 86400 mg/d / 1000 = g/d
+    daily_n_removed_g = (c0 - c_end) * Q * 86400  # g/d
+
+    return {
+        "vf": vf_mm_min, "width": width, "depth": depth,
+        "velocity": velocity, "c0": c0, "Q": Q, "Sw": Sw,
+        "c_end": c_end, "pct_retained": pct_retained,
+        "daily_n_removed_g": daily_n_removed_g,
+        "x": x, "C": C, "vf_m_s": vf_m_s,
+    }
+
+def render_plot(m):
+    x, C, c0, Sw, vf_m_s = m["x"], m["C"], m["c0"], m["Sw"], m["vf_m_s"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4), dpi=100)
+    fig.patch.set_facecolor('#ffffff')
+
+    ax1.fill_between(x, C, alpha=0.15, color='#3a7ca5')
+    ax1.plot(x, C, color='#3a7ca5', linewidth=2.5)
+    ax1.axhline(y=c0, color='#999', linewidth=0.8, linestyle='--', alpha=0.5)
+
+    if Sw < 1000:
+        c_at_sw = c0 * np.exp(-1)
+        ax1.axvline(x=Sw, color='#c45d3e', linewidth=1.2, linestyle='--', alpha=0.7)
+        ax1.annotate(f'Sw = {Sw:.0f} m',
+                     xy=(Sw, c_at_sw), xytext=(Sw + 40, c_at_sw + c0*0.1),
+                     fontsize=8, color='#c45d3e', fontweight='600',
+                     arrowprops=dict(arrowstyle='->', color='#c45d3e', lw=1.2))
+
+    ax1.set_xlabel('Distance downstream (m)', fontsize=9, fontweight='500')
+    ax1.set_ylabel('DIN concentration (mg L⁻¹)', fontsize=9, fontweight='500')
+    ax1.set_title('Nitrogen Concentration', fontsize=10, fontweight='600', color='#2c2c2c')
+    ax1.set_xlim(0, 1000)
+    ax1.set_ylim(0, c0 * 1.1)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    ax1.tick_params(labelsize=8)
+
+    U_display = vf_m_s * C * 1000 * 1000 * 60
+    ax2.fill_between(x, U_display, alpha=0.15, color='#1a6b5a')
+    ax2.plot(x, U_display, color='#1a6b5a', linewidth=2.5)
+    ax2.set_xlabel('Distance downstream (m)', fontsize=9, fontweight='500')
+    ax2.set_ylabel('Areal uptake (mg m⁻² min⁻¹)', fontsize=9, fontweight='500')
+    ax2.set_title('Areal Uptake Rate', fontsize=10, fontweight='600', color='#2c2c2c')
+    ax2.set_xlim(0, 1000)
+    ax2.set_ylim(0, None)
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
+    ax2.tick_params(labelsize=8)
+
+    plt.tight_layout(pad=1.5)
+
+    buf = BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight', facecolor='#ffffff')
+    plt.close(fig)
+    buf.seek(0)
+    img_b64 = base64.b64encode(buf.read()).decode('utf-8')
+
+    document.getElementById("plot-area").innerHTML = (
+        f'<img src="data:image/png;base64,{img_b64}" style="width:100%; max-width:800px;">'
+    )
+
+def update_metric_cards(m):
+    update_display("vf-display", m["vf"])
+    update_display("width-display", m["width"], ".1f")
+    update_display("depth-display", m["depth"])
+    update_display("velocity-display", m["velocity"])
+    update_display("c0-display", m["c0"])
+
+    Sw = m["Sw"]
+    if Sw >= 1000:
+        document.getElementById("sw-value").textContent = f"{Sw/1000:.2f} km"
+        document.querySelector("#sw-value + .metric-unit").textContent = ""
+    else:
+        document.getElementById("sw-value").textContent = f"{Sw:.0f}"
+        document.querySelector("#sw-value + .metric-unit").textContent = "meters"
+
+    document.getElementById("q-value").textContent = f"{m['Q']:.3f}"
+    document.getElementById("c1km-value").textContent = f"{m['c_end']:.3f}"
+    document.getElementById("pct-value").textContent = f"{m['pct_retained']:.1f}%"
+
+    daily = m["daily_n_removed_g"]
+    if daily >= 1000:
+        document.getElementById("daily-value").textContent = f"{daily/1000:.2f}"
+        document.getElementById("daily-unit").textContent = "kg d⁻¹"
+    else:
+        document.getElementById("daily-value").textContent = f"{daily:.1f}"
+        document.getElementById("daily-unit").textContent = "g d⁻¹"
+
+def render_table():
+    container = document.getElementById("table-container")
+    count_el = document.getElementById("row-count")
+
+    if len(saved_scenarios) == 0:
+        container.innerHTML = '<p class="table-empty">No saved scenarios yet. Adjust parameters and click &quot;Save current scenario.&quot;</p>'
+        count_el.textContent = ""
+        return
+
+    count_el.textContent = f"{len(saved_scenarios)} scenario{'s' if len(saved_scenarios) != 1 else ''}"
+
+    rows = ""
+    for i, s in enumerate(saved_scenarios):
+        sw_str = f"{s['Sw']/1000:.2f} km" if s["Sw"] >= 1000 else f"{s['Sw']:.0f} m"
+        daily = s["daily_n_removed_g"]
+        daily_str = f"{daily/1000:.2f} kg" if daily >= 1000 else f"{daily:.1f} g"
+        rows += f"""<tr>
+            <td><button class="delete-btn" data-idx="{i}" title="Remove">&#215;</button></td>
+            <td>{s['label']}</td>
+            <td>{s['vf']:.2f}</td>
+            <td>{s['width']:.1f}</td>
+            <td>{s['depth']:.2f}</td>
+            <td>{s['velocity']:.2f}</td>
+            <td>{s['c0']:.1f}</td>
+            <td class="output-col">{s['Q']:.3f}</td>
+            <td class="output-col">{sw_str}</td>
+            <td class="output-col">{s['c_end']:.3f}</td>
+            <td class="output-col">{s['pct_retained']:.1f}%</td>
+            <td class="output-col">{daily_str}/d</td>
+        </tr>"""
+
+    html = f"""<div class="table-scroll"><table class="comparison-table">
+        <thead><tr>
+            <th></th>
+            <th>Scenario</th>
+            <th>Vf<br>(mm/min)</th>
+            <th>Width<br>(m)</th>
+            <th>Depth<br>(m)</th>
+            <th>Velocity<br>(m/s)</th>
+            <th>C&#8320;<br>(mg/L)</th>
+            <th class="output-col">Q<br>(m&#179;/s)</th>
+            <th class="output-col">S<sub>w</sub></th>
+            <th class="output-col">C @ 1km<br>(mg/L)</th>
+            <th class="output-col">% Retained</th>
+            <th class="output-col">N Removed<br>(/day)</th>
+        </tr></thead>
+        <tbody>{rows}</tbody>
+    </table></div>"""
+
+    container.innerHTML = html
+
+    # Rebind delete buttons
+    for btn in document.querySelectorAll(".delete-btn"):
+        btn.addEventListener("click", delete_proxy)
+
+
+# ── Preset data ──
+# (width_m, depth_m, velocity_m_s) for each stream order at low and high flow
+PRESETS = {
+    "1": {"low": (1.5,  0.10, 0.10), "high": (2.5,  0.25, 0.35)},
+    "2": {"low": (3.0,  0.15, 0.15), "high": (5.0,  0.35, 0.45)},
+    "3": {"low": (5.0,  0.25, 0.20), "high": (8.0,  0.55, 0.55)},
+    "4": {"low": (10.0, 0.40, 0.25), "high": (15.0, 0.85, 0.65)},
+    "5": {"low": (18.0, 0.60, 0.30), "high": (25.0, 1.20, 0.75)},
+    "6": {"low": (30.0, 0.90, 0.35), "high": (50.0, 1.80, 0.85)},
+    "7": {"low": (60.0, 1.50, 0.45), "high": (100.0,2.80, 1.00)},
+}
+
+current_flow = ["low"]
+
+def set_slider(id, val):
+    """Set slider value and trigger display update."""
+    el = document.getElementById(id)
+    el.value = str(val)
+
+def apply_preset(*args):
+    order = document.getElementById("stream-order").value
+    if not order:
+        document.getElementById("preset-hint").textContent = ""
+        return
+
+    flow = current_flow[0]
+    w, d, v = PRESETS[order][flow]
+    set_slider("width", w)
+    set_slider("depth", d)
+    set_slider("velocity", v)
+
+    flow_label = "low flow" if flow == "low" else "high flow"
+    ordinal = {"1":"1st","2":"2nd","3":"3rd","4":"4th","5":"5th","6":"6th","7":"7th"}[order]
+    document.getElementById("preset-hint").textContent = (
+        f"Set to {ordinal} order, {flow_label}: w={w}m, d={d}m, v={v}m/s"
+    )
+
+    run_model()
+
+def toggle_flow(event):
+    btn = event.currentTarget
+    flow = btn.getAttribute("data-flow")
+    current_flow[0] = flow
+
+    document.getElementById("btn-low-flow").classList.remove("active")
+    document.getElementById("btn-high-flow").classList.remove("active")
+    btn.classList.add("active")
+
+    # If a stream order is selected, re-apply
+    if document.getElementById("stream-order").value:
+        apply_preset()
+
+
+# ── Event handlers ──
+
+def run_model(*args):
+    m = compute_model()
+    update_metric_cards(m)
+    render_plot(m)
+
+def save_scenario(*args):
+    m = compute_model()
+    label_el = document.getElementById("scenario-label")
+    label = label_el.value.strip()
+    if not label:
+        scenario_counter[0] += 1
+        label = f"Scenario {scenario_counter[0]}"
+    else:
+        scenario_counter[0] += 1
+
+    saved_scenarios.append({
+        "label": label,
+        "vf": m["vf"], "width": m["width"], "depth": m["depth"],
+        "velocity": m["velocity"], "c0": m["c0"], "Q": m["Q"],
+        "Sw": m["Sw"], "c_end": m["c_end"], "pct_retained": m["pct_retained"],
+        "daily_n_removed_g": m["daily_n_removed_g"],
+    })
+
+    label_el.value = ""
+    render_table()
+
+def delete_row(event):
+    idx = int(event.currentTarget.getAttribute("data-idx"))
+    if 0 <= idx < len(saved_scenarios):
+        saved_scenarios.pop(idx)
+        render_table()
+
+def clear_all(*args):
+    saved_scenarios.clear()
+    render_table()
+
+def download_csv(*args):
+    if len(saved_scenarios) == 0:
+        return
+
+    header = "Scenario,Vf_mm_min,Width_m,Depth_m,Velocity_m_s,C0_mg_L,Q_m3_s,Sw_m,C_1km_mg_L,Pct_Retained,Daily_N_Removed_g_d\n"
+    lines = []
+    for s in saved_scenarios:
+        line = f'"{s["label"]}",{s["vf"]:.2f},{s["width"]:.1f},{s["depth"]:.2f},{s["velocity"]:.2f},{s["c0"]:.1f},{s["Q"]:.4f},{s["Sw"]:.1f},{s["c_end"]:.4f},{s["pct_retained"]:.2f},{s["daily_n_removed_g"]:.2f}'
+        lines.append(line)
+
+    csv_text = header + "\n".join(lines)
+    blob = Blob.new([csv_text], {"type": "text/csv"})
+    url = URL.createObjectURL(blob)
+
+    a = document.createElement("a")
+    a.href = url
+    a.download = "stream_n_uptake_scenarios.csv"
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+
+# ── Create proxies and bind ──
+model_proxy = create_proxy(run_model)
+save_proxy = create_proxy(save_scenario)
+clear_proxy = create_proxy(clear_all)
+csv_proxy = create_proxy(download_csv)
+delete_proxy = create_proxy(delete_row)
+preset_proxy = create_proxy(apply_preset)
+flow_proxy = create_proxy(toggle_flow)
+
+for slider_id in ["vf", "width", "depth", "velocity", "c0"]:
+    document.getElementById(slider_id).addEventListener("input", model_proxy)
+
+document.getElementById("stream-order").addEventListener("change", preset_proxy)
+document.getElementById("btn-low-flow").addEventListener("click", flow_proxy)
+document.getElementById("btn-high-flow").addEventListener("click", flow_proxy)
+
+document.getElementById("btn-save").addEventListener("click", save_proxy)
+document.getElementById("btn-clear").addEventListener("click", clear_proxy)
+document.getElementById("btn-csv").addEventListener("click", csv_proxy)
+
+# Initial run
+run_model()
+</script>
+
+</body>
+</html>
