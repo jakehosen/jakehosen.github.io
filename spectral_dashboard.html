@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spectral Band Data Viewer</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #181a20;
+      --surface2: #1e2028;
+      --border: #2a2d38;
+      --text: #e1e4eb;
+      --text-dim: #8b8fa3;
+      --accent: #4dabf7;
+      --accent-dim: #2b6cb0;
+      --green: #51cf66;
+      --orange: #ff922b;
+      --red: #ff6b6b;
+      --purple: #cc5de8;
+      --radius: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header .icon-mark {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      border-radius: 6px;
+      display: grid; place-items: center;
+      font-size: 16px; font-weight: 700; color: var(--bg);
+    }
+    header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+    header .status-pill {
+      margin-left: auto;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    header .status-pill.ready { border-color: var(--green); color: var(--green); }
+    header .status-pill.loading { border-color: var(--orange); color: var(--orange); }
+    header .status-pill.error { border-color: var(--red); color: var(--red); }
+
+    aside {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+    aside h3 {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    input[type="date"], select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+    }
+    input[type="date"]:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+    button#fetchBtn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button#fetchBtn:hover { background: #74c0fc; }
+    button#fetchBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .data-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      background: var(--surface);
+    }
+    .tab-btn {
+      padding: 12px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .tab-content { display: none; padding: 24px; }
+    .tab-content.active { display: block; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+    }
+    .card-body { padding: 16px; }
+    .card-body.flush { padding: 0; }
+
+    .card .placeholder-msg {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    table.data-table th {
+      position: sticky;
+      top: 0;
+      background: var(--surface2);
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    table.data-table td {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    table.data-table tr:hover td { background: var(--surface2); }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .stat-card .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    .stat-card .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: border-color 0.15s;
+    }
+    .checkbox-row label:has(input:checked) {
+      border-color: var(--accent);
+      background: rgba(77, 171, 247, 0.08);
+    }
+    .checkbox-row input[type="checkbox"] { accent-color: var(--accent); }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    select[multiple] { min-height: 70px; }
+
+    .js-plotly-plot .plotly .modebar { right: 8px !important; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @media (max-width: 860px) {
+      .app-shell { grid-template-columns: 1fr; }
+      aside { border-right: none; border-bottom: 1px solid var(--border); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header>
+    <div class="icon-mark">S</div>
+    <h1>Spectral Band Data Viewer</h1>
+    <span id="pyStatus" class="status-pill loading">loading pyodide…</span>
+  </header>
+
+  <aside>
+    <div><h3>Data Controls</h3></div>
+    <div class="field-group">
+      <label class="field-label">Start Date</label>
+      <input type="date" id="startDate" />
+    </div>
+    <div class="field-group">
+      <label class="field-label">End Date</label>
+      <input type="date" id="endDate" />
+    </div>
+    <button id="fetchBtn" disabled>Fetch Data</button>
+    <div class="data-status" id="dataStatus">Initializing Python runtime…</div>
+  </aside>
+
+  <main>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="table">Data Table</button>
+      <button class="tab-btn" data-tab="bands">Band Analysis</button>
+      <button class="tab-btn" data-tab="devices">Device Comparison</button>
+    </div>
+
+    <!-- Tab: Data Table -->
+    <div class="tab-content active" id="tab-table">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">Spectral Data</div>
+        <div class="card-body flush">
+          <div id="tableArea">
+            <div class="placeholder-msg">Select a date range and click <strong>Fetch Data</strong> to load spectral data.</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">Summary Statistics</div>
+          <div class="card-body">
+            <div id="summaryStats" class="stats-grid">
+              <div class="placeholder-msg" style="grid-column:1/-1;">No data loaded.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Records per Device</div>
+          <div class="card-body flush">
+            <div id="deviceCountPlot" style="height:280px;">
+              <div class="placeholder-msg">No data loaded.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Band Analysis -->
+    <div class="tab-content" id="tab-bands">
+      <div class="controls-bar">
+        <div class="field-group" style="min-width:180px;">
+          <label class="field-label">Devices</label>
+          <select id="deviceSelect" multiple></select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Bands</label>
+          <div class="checkbox-row" id="bandCheckboxes">
+            <label><input type="checkbox" value="band_r" checked /> band_r</label>
+            <label><input type="checkbox" value="band_s" checked /> band_s</label>
+            <label><input type="checkbox" value="band_t" checked /> band_t</label>
+            <label><input type="checkbox" value="band_u" checked /> band_u</label>
+            <label><input type="checkbox" value="band_v" checked /> band_v</label>
+            <label><input type="checkbox" value="band_w" checked /> band_w</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">Spectral Band Values Over Time</div>
+        <div class="card-body flush">
+          <div id="timeSeriesPlot" style="min-height:380px;">
+            <div class="placeholder-msg">No data loaded. Please fetch data first.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">Band Value Distribution</div>
+          <div class="card-body flush">
+            <div id="histogramPlot" style="min-height:300px;">
+              <div class="placeholder-msg">No data loaded.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Band Correlation Heatmap</div>
+          <div class="card-body flush">
+            <div id="correlationPlot" style="min-height:300px;">
+              <div class="placeholder-msg">No data loaded.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Device Comparison -->
+    <div class="tab-content" id="tab-devices">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">Band Distributions by Device</div>
+        <div class="card-body flush">
+          <div id="deviceBoxPlot" style="min-height:420px;">
+            <div class="placeholder-msg">No data loaded. Please fetch data first.</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">Average Band Values by Device</div>
+          <div class="card-body flush">
+            <div id="deviceAvgPlot" style="min-height:300px;">
+              <div class="placeholder-msg">No data loaded.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Device Activity Timeline</div>
+          <div class="card-body flush">
+            <div id="deviceTimeline" style="min-height:300px;">
+              <div class="placeholder-msg">No data loaded.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Global state ──
+let pyodide = null;
+let currentData = null;
+let TIME_COL = null; // resolved dynamically from the data
+
+const PLOTLY_LAYOUT = {
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor: 'rgba(0,0,0,0)',
+  font: { family: 'DM Sans, sans-serif', size: 12, color: '#8b8fa3' },
+  margin: { t: 30, r: 20, b: 50, l: 60 },
+  xaxis: { gridcolor: '#2a2d38', zerolinecolor: '#2a2d38' },
+  yaxis: { gridcolor: '#2a2d38', zerolinecolor: '#2a2d38' },
+  legend: { bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } },
+  colorway: ['#4dabf7','#51cf66','#ff922b','#ff6b6b','#cc5de8','#fcc419'],
+};
+const PLOTLY_CFG = { responsive: true, displayModeBar: false };
+const COLORS = ['#4dabf7','#51cf66','#ff922b','#ff6b6b','#cc5de8','#fcc419'];
+
+// ── Defaults ──
+function initDates() {
+  const today = new Date();
+  const weekAgo = new Date(today);
+  weekAgo.setDate(today.getDate() - 7);
+  document.getElementById('endDate').value = today.toISOString().slice(0, 10);
+  document.getElementById('startDate').value = weekAgo.toISOString().slice(0, 10);
+}
+
+// ── Tabs ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (currentData) setTimeout(() => {
+      document.querySelectorAll('.tab-content.active .js-plotly-plot').forEach(p => Plotly.Plots.resize(p));
+    }, 50);
+  });
+});
+
+// ── Init Pyodide ──
+async function initPyodide() {
+  const statusEl = document.getElementById('pyStatus');
+  const statusMsg = document.getElementById('dataStatus');
+  try {
+    pyodide = await loadPyodide();
+    await pyodide.loadPackage(['pandas']);
+    await pyodide.runPythonAsync(`
+import json
+import pandas as pd
+
+def process_spectral_data(ndjson_text):
+    """Process raw NDJSON from StreamCI into structured JSON for the JS frontend."""
+    lines = ndjson_text.strip().splitlines()
+    results = [json.loads(line) for line in lines if line.strip()]
+
+    if not results:
+        return json.dumps({"columns": [], "rows": [], "devices": [], "count": 0, "time_col": None})
+
+    df = pd.DataFrame(results)
+
+    # Determine the best available timestamp column.
+    # The API returns 'published_at' in each document.
+    # 'systemInsertedTime' is used as a query filter but may or may not appear in results.
+    time_col = None
+    for candidate in ['published_at', 'systemInsertedTime']:
+        if candidate in df.columns:
+            time_col = candidate
+            break
+
+    if time_col:
+        df[time_col] = pd.to_datetime(df[time_col], errors='coerce')
+        df = df.sort_values(time_col)
+        df[time_col] = df[time_col].dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    # Drop time_h (epoch placeholder, not useful)
+    if 'time_h' in df.columns:
+        df = df.drop(columns=['time_h'])
+
+    # Coerce band columns to numeric
+    band_cols = [c for c in df.columns if c.startswith('band_')]
+    for c in band_cols:
+        df[c] = pd.to_numeric(df[c], errors='coerce')
+
+    devices = sorted(df['device_id'].dropna().unique().tolist()) if 'device_id' in df.columns else []
+
+    return json.dumps({
+        "columns": df.columns.tolist(),
+        "rows": df.where(df.notna(), None).values.tolist(),
+        "devices": devices,
+        "count": len(df),
+        "time_col": time_col
+    })
+`);
+    statusEl.textContent = 'ready';
+    statusEl.className = 'status-pill ready';
+    statusMsg.textContent = 'Ready — select a date range and fetch.';
+    document.getElementById('fetchBtn').disabled = false;
+  } catch (e) {
+    statusEl.textContent = 'error';
+    statusEl.className = 'status-pill error';
+    statusMsg.textContent = 'Failed to load Python: ' + e.message;
+    console.error(e);
+  }
+}
+
+// ── JS-side API fetch (browser fetch with CORS proxy fallbacks) ──
+async function fetchStreamCI(startISO, endISO) {
+  const API_URL = 'https://api.streamci.org/query';
+  const CORS_PROXIES = [
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    (url) => `https://cors-proxy.fringe.zone/${url}`,
+    (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
+  ];
+
+  const payload = JSON.stringify({
+    auth: {
+      target: "waterbear",
+      authtype: "secret",
+      secret_key: "uRSGDmkla+B*e3MFoiQ9#oSZ2tOzn3j5"
+    },
+    request: {
+      method: "query",
+      query: {
+        systemInsertedTime: { "$gte": startISO, "$lt": endISO }
+      }
+    }
+  });
+
+  const attempts = [
+    () => fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }),
+    ...CORS_PROXIES.map(proxy => () => fetch(proxy(API_URL), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }))
+  ];
+
+  for (let i = 0; i < attempts.length; i++) {
+    try {
+      const res = await attempts[i]();
+      if (res.ok) return await res.text();
+      console.warn(`Attempt ${i + 1}: HTTP ${res.status}`);
+    } catch (e) {
+      console.warn(`Attempt ${i + 1} failed:`, e.message);
+    }
+  }
+  throw new Error('Could not reach the StreamCI API (CORS). Try serving this page from a local web server or using your own CORS proxy.');
+}
+
+// ── Fetch button ──
+document.getElementById('fetchBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('fetchBtn');
+  const statusEl = document.getElementById('pyStatus');
+  const statusMsg = document.getElementById('dataStatus');
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+
+  if (!startDate || !endDate) { statusMsg.textContent = 'Please select both dates.'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'fetching…';
+  statusEl.className = 'status-pill loading';
+  statusMsg.innerHTML = '<span class="spinner"></span> Fetching data…';
+
+  const startISO = startDate + 'T00:00:00.000Z';
+  const endISO = endDate + 'T23:59:59.999Z';
+
+  try {
+    // Step 1: JS fetches raw NDJSON (handles CORS)
+    const ndjsonText = await fetchStreamCI(startISO, endISO);
+
+    // Step 2: Pass to Pyodide/pandas for processing
+    pyodide.globals.set('_raw_ndjson', ndjsonText);
+    const resultJSON = await pyodide.runPythonAsync(`process_spectral_data(_raw_ndjson)`);
+    currentData = JSON.parse(resultJSON);
+    TIME_COL = currentData.time_col;
+
+    console.log('Resolved TIME_COL:', TIME_COL);
+    console.log('Columns:', currentData.columns);
+    console.log('Sample row:', currentData.rows[0]);
+
+    if (currentData.count === 0) {
+      statusMsg.textContent = 'No records found for that range.';
+      statusEl.textContent = 'no data';
+      statusEl.className = 'status-pill';
+    } else {
+      statusMsg.textContent = `${currentData.count} records loaded\nDevices: ${currentData.devices.length}\nTime col: ${TIME_COL}\nFetched: ${new Date().toLocaleTimeString()}`;
+      statusEl.textContent = `${currentData.count} rows`;
+      statusEl.className = 'status-pill ready';
+      populateDeviceSelect();
+      renderAll();
+    }
+  } catch (e) {
+    statusMsg.textContent = 'Error: ' + e.message;
+    statusEl.textContent = 'error';
+    statusEl.className = 'status-pill error';
+    console.error(e);
+  }
+
+  btn.disabled = false;
+});
+
+// ── Helpers ──
+function colIdx(name) {
+  return currentData ? currentData.columns.indexOf(name) : -1;
+}
+function getColumn(name) {
+  const i = colIdx(name);
+  return i < 0 ? [] : currentData.rows.map(r => r[i]);
+}
+function getFilteredRows() {
+  const sel = Array.from(document.getElementById('deviceSelect').selectedOptions).map(o => o.value);
+  const dIdx = colIdx('device_id');
+  if (sel.length === 0 || dIdx < 0) return currentData.rows;
+  return currentData.rows.filter(r => sel.includes(r[dIdx]));
+}
+function getSelectedBands() {
+  return Array.from(document.querySelectorAll('#bandCheckboxes input:checked')).map(cb => cb.value);
+}
+function populateDeviceSelect() {
+  const sel = document.getElementById('deviceSelect');
+  sel.innerHTML = '';
+  currentData.devices.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d; opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Render all ──
+function renderAll() {
+  renderTable();
+  renderSummary();
+  renderDeviceCountPlot();
+  renderTimeSeries();
+  renderHistogram();
+  renderCorrelation();
+  renderDeviceBoxPlot();
+  renderDeviceAvg();
+  renderDeviceTimeline();
+}
+
+// ── Table ──
+function renderTable() {
+  const el = document.getElementById('tableArea');
+  if (!currentData || currentData.count === 0) { el.innerHTML = '<div class="placeholder-msg">No data available.</div>'; return; }
+  const maxRows = 500;
+  const rows = currentData.rows.slice(0, maxRows);
+  let html = '<div class="table-wrap"><table class="data-table"><thead><tr>';
+  currentData.columns.forEach(c => { html += `<th>${c}</th>`; });
+  html += '</tr></thead><tbody>';
+  rows.forEach(r => {
+    html += '<tr>';
+    r.forEach(v => {
+      const d = (v === null || v === '') ? '—' : (typeof v === 'number' ? Number(v.toFixed(4)) : v);
+      html += `<td>${d}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  if (currentData.count > maxRows) html += `<div style="padding:8px 16px;font-size:11px;color:var(--text-dim);">Showing ${maxRows} of ${currentData.count} rows.</div>`;
+  el.innerHTML = html;
+}
+
+// ── Summary ──
+function renderSummary() {
+  const el = document.getElementById('summaryStats');
+  if (!currentData || currentData.count === 0) { el.innerHTML = '<div class="placeholder-msg" style="grid-column:1/-1;">No data loaded.</div>'; return; }
+  const times = TIME_COL ? getColumn(TIME_COL).filter(t => t) : [];
+  const minT = times.length ? times.reduce((a,b) => a < b ? a : b) : '—';
+  const maxT = times.length ? times.reduce((a,b) => a > b ? a : b) : '—';
+  const bandCols = currentData.columns.filter(c => c.startsWith('band_'));
+  el.innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Records</div><div class="stat-value">${currentData.count}</div></div>
+    <div class="stat-card"><div class="stat-label">Devices</div><div class="stat-value">${currentData.devices.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Bands</div><div class="stat-value">${bandCols.length}</div></div>
+    <div class="stat-card"><div class="stat-label">From</div><div class="stat-value" style="font-size:13px;">${minT.replace('T',' ').replace('Z','')}</div></div>
+    <div class="stat-card"><div class="stat-label">To</div><div class="stat-value" style="font-size:13px;">${maxT.replace('T',' ').replace('Z','')}</div></div>
+  `;
+}
+
+// ── Device count bar ──
+function renderDeviceCountPlot() {
+  const el = document.getElementById('deviceCountPlot');
+  if (!currentData || currentData.count === 0) return;
+  const dIdx = colIdx('device_id');
+  if (dIdx < 0) return;
+  const counts = {};
+  currentData.rows.forEach(r => { const d = r[dIdx] || 'unknown'; counts[d] = (counts[d] || 0) + 1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  Plotly.newPlot(el, [{
+    type: 'bar', y: sorted.map(s => s[0]), x: sorted.map(s => s[1]),
+    orientation: 'h', marker: { color: '#4dabf7' }
+  }], {
+    ...PLOTLY_LAYOUT,
+    margin: { t: 10, r: 20, b: 40, l: 120 },
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Records' },
+    yaxis: { ...PLOTLY_LAYOUT.yaxis, autorange: 'reversed' },
+  }, PLOTLY_CFG);
+}
+
+// ══════════════════════════════════════════════════
+// TIME SERIES — uses TIME_COL (published_at or systemInsertedTime)
+// ══════════════════════════════════════════════════
+function renderTimeSeries() {
+  const el = document.getElementById('timeSeriesPlot');
+  if (!currentData || currentData.count === 0) {
+    el.innerHTML = '<div class="placeholder-msg">No data loaded. Please fetch data first.</div>';
+    return;
+  }
+
+  const rows = getFilteredRows();
+  const bands = getSelectedBands();
+  const tIdx = TIME_COL ? colIdx(TIME_COL) : -1;
+  const dIdx = colIdx('device_id');
+
+  if (tIdx < 0) {
+    el.innerHTML = `<div class="placeholder-msg">No timestamp column found in data.<br>Columns: ${currentData.columns.join(', ')}</div>`;
+    return;
+  }
+  if (bands.length === 0) {
+    el.innerHTML = '<div class="placeholder-msg">Select at least one band.</div>';
+    return;
+  }
+
+  const devices = [...new Set(rows.map(r => r[dIdx]).filter(Boolean))];
+  const traces = [];
+
+  bands.forEach((band, bi) => {
+    const bIdx = colIdx(band);
+    if (bIdx < 0) return;
+    devices.forEach(dev => {
+      const devRows = rows.filter(r => r[dIdx] === dev).sort((a,b) => (a[tIdx]||'').localeCompare(b[tIdx]||''));
+      const xVals = devRows.map(r => r[tIdx]);
+      const yVals = devRows.map(r => {
+        const v = r[bIdx];
+        if (v == null) return null;
+        const n = parseFloat(v);
+        return isNaN(n) ? null : n;
+      });
+      if (xVals.length > 0) {
+        traces.push({
+          x: xVals, y: yVals,
+          mode: 'lines+markers',
+          name: `${band} — ${dev}`,
+          marker: { size: 4, color: COLORS[bi % COLORS.length] },
+          line: { width: 1.5 },
+          legendgroup: band,
+        });
+      }
+    });
+  });
+
+  if (traces.length === 0) {
+    el.innerHTML = '<div class="placeholder-msg">No plottable data for the selected filters.</div>';
+    return;
+  }
+
+  Plotly.newPlot(el, traces, {
+    ...PLOTLY_LAYOUT,
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Time' },
+    yaxis: { ...PLOTLY_LAYOUT.yaxis, title: 'Band Value', type: 'linear' },
+    legend: { ...PLOTLY_LAYOUT.legend, orientation: 'h', y: -0.2 },
+  }, { responsive: true, displayModeBar: true });
+}
+
+// ── Histogram ──
+function renderHistogram() {
+  const el = document.getElementById('histogramPlot');
+  if (!currentData || currentData.count === 0) return;
+  const rows = getFilteredRows();
+  const bands = getSelectedBands();
+  const traces = bands.map((band, i) => {
+    const bIdx = colIdx(band);
+    const vals = bIdx >= 0 ? rows.map(r => r[bIdx]).map(v => parseFloat(v)).filter(v => !isNaN(v)) : [];
+    return { x: vals, type: 'histogram', name: band, opacity: 0.7, marker: { color: COLORS[i % COLORS.length] }, nbinsx: 20 };
+  });
+  Plotly.newPlot(el, traces, {
+    ...PLOTLY_LAYOUT, barmode: 'overlay',
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Band Value' },
+    yaxis: { ...PLOTLY_LAYOUT.yaxis, title: 'Frequency' },
+    legend: { ...PLOTLY_LAYOUT.legend, orientation: 'h', y: -0.25 },
+  }, PLOTLY_CFG);
+}
+
+// ── Correlation heatmap ──
+function renderCorrelation() {
+  const el = document.getElementById('correlationPlot');
+  if (!currentData || currentData.count === 0) return;
+  const rows = getFilteredRows();
+  const bands = currentData.columns.filter(c => c.startsWith('band_'));
+  if (bands.length < 2) return;
+  const arrays = bands.map(b => { const i = colIdx(b); return rows.map(r => { const v = parseFloat(r[i]); return isNaN(v) ? NaN : v; }); });
+  function corr(a, b) {
+    const pairs = a.map((v,i) => [v, b[i]]).filter(p => !isNaN(p[0]) && !isNaN(p[1]));
+    if (pairs.length < 3) return NaN;
+    const n = pairs.length;
+    const mx = pairs.reduce((s,p) => s+p[0], 0)/n;
+    const my = pairs.reduce((s,p) => s+p[1], 0)/n;
+    let num=0, dx=0, dy=0;
+    pairs.forEach(p => { num += (p[0]-mx)*(p[1]-my); dx += (p[0]-mx)**2; dy += (p[1]-my)**2; });
+    return dx && dy ? num / Math.sqrt(dx*dy) : NaN;
+  }
+  const z = bands.map((_, i) => bands.map((_, j) => corr(arrays[i], arrays[j])));
+  Plotly.newPlot(el, [{
+    z, x: bands, y: bands, type: 'heatmap',
+    colorscale: [[0,'#4dabf7'],[0.5,'#1e2028'],[1,'#ff6b6b']],
+    zmin: -1, zmax: 1,
+  }], {
+    ...PLOTLY_LAYOUT, margin: { t: 10, r: 10, b: 60, l: 80 },
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, tickangle: 45 },
+  }, PLOTLY_CFG);
+}
+
+// ── Device box plots ──
+function renderDeviceBoxPlot() {
+  const el = document.getElementById('deviceBoxPlot');
+  if (!currentData || currentData.count === 0) return;
+  const bands = currentData.columns.filter(c => c.startsWith('band_'));
+  const dIdx = colIdx('device_id');
+  const traces = [];
+  bands.forEach((band, bi) => {
+    const bIdx = colIdx(band);
+    if (bIdx < 0) return;
+    currentData.devices.forEach(dev => {
+      const vals = currentData.rows.filter(r => r[dIdx] === dev).map(r => r[bIdx]).map(v => parseFloat(v)).filter(v => !isNaN(v));
+      traces.push({
+        y: vals, type: 'box', name: band,
+        x: vals.map(() => dev),
+        marker: { color: COLORS[bi % COLORS.length] },
+        legendgroup: band,
+        showlegend: dev === currentData.devices[0],
+      });
+    });
+  });
+  Plotly.newPlot(el, traces, {
+    ...PLOTLY_LAYOUT, boxmode: 'group',
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Device' },
+    yaxis: { ...PLOTLY_LAYOUT.yaxis, title: 'Band Value', type: 'linear' },
+    legend: { ...PLOTLY_LAYOUT.legend, orientation: 'h', y: -0.15 },
+  }, { responsive: true, displayModeBar: true });
+}
+
+// ── Device averages ──
+function renderDeviceAvg() {
+  const el = document.getElementById('deviceAvgPlot');
+  if (!currentData || currentData.count === 0) return;
+  const bands = currentData.columns.filter(c => c.startsWith('band_'));
+  const dIdx = colIdx('device_id');
+  const traces = currentData.devices.map(dev => {
+    const devRows = currentData.rows.filter(r => r[dIdx] === dev);
+    const means = bands.map(b => {
+      const i = colIdx(b);
+      const vals = devRows.map(r => r[i]).map(v => parseFloat(v)).filter(v => !isNaN(v));
+      return vals.length ? vals.reduce((s,v) => s+v, 0) / vals.length : 0;
+    });
+    return { x: bands, y: means, type: 'bar', name: dev };
+  });
+  Plotly.newPlot(el, traces, {
+    ...PLOTLY_LAYOUT, barmode: 'group',
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Band', tickangle: 45 },
+    yaxis: { ...PLOTLY_LAYOUT.yaxis, title: 'Mean Value', type: 'linear' },
+    legend: { ...PLOTLY_LAYOUT.legend, orientation: 'h', y: -0.3 },
+    margin: { t: 10, r: 20, b: 80, l: 60 },
+  }, PLOTLY_CFG);
+}
+
+// ── Device timeline ──
+function renderDeviceTimeline() {
+  const el = document.getElementById('deviceTimeline');
+  if (!currentData || currentData.count === 0) return;
+  const tIdx = TIME_COL ? colIdx(TIME_COL) : -1;
+  const dIdx = colIdx('device_id');
+  if (tIdx < 0 || dIdx < 0) return;
+  const traces = currentData.devices.map(dev => {
+    const devRows = currentData.rows.filter(r => r[dIdx] === dev);
+    return {
+      x: devRows.map(r => r[tIdx]), y: devRows.map(() => dev),
+      mode: 'markers', name: dev, marker: { size: 6 },
+    };
+  });
+  Plotly.newPlot(el, traces, {
+    ...PLOTLY_LAYOUT,
+    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Time' },
+    showlegend: false,
+    margin: { t: 10, r: 20, b: 50, l: 120 },
+  }, PLOTLY_CFG);
+}
+
+// ── Re-render on filter changes ──
+document.getElementById('deviceSelect').addEventListener('change', () => {
+  renderTimeSeries(); renderHistogram(); renderCorrelation();
+});
+document.getElementById('bandCheckboxes').addEventListener('change', () => {
+  renderTimeSeries(); renderHistogram();
+});
+
+// ── Boot ──
+initDates();
+initPyodide();
+</script>
+</body>
+</html>
