@@ -1,5 +1,8 @@
+## Setting up electret sensor
+
 ## Step 1: Plug in your device to your computer.
 If the device is configured for your local WiFi network proceed to step 2. If you need to configure your device for the local WiFi network open Chrome and go to setup.particle.io. Go through the steps there and at the end you will have the option to select a wireless network. Choose the appropriate network. Note: these devices cannot login to PAL or Eduroam.
+
 
 ## Step 2: Open VS Code and Configure your workspace
 * Open the Command Palette using the CTL+SHIFT+P (Windows, Linux) or CMD+SHIFT+P (Mac OS, Linux) shortcut.
@@ -106,7 +109,7 @@ const unsigned long MIC_WARMUP_MS = 500;
 // ACOUSTIC CONFIGURATION
 // ============================================================================
 
-const int MIC_PIN = A0;   // free on the Argon; not used by the ESP32 interface
+const int MIC_PIN = A4;   // free on the Argon; not used by the ESP32 interface
 
 // --- Sample rate -----------------------------------------------------------
 // Nyquist = SAMPLE_RATE_HZ / 2 is your maximum analyzable frequency.
