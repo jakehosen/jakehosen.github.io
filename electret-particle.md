@@ -1,7 +1,6 @@
 
 ---
 title: Electret setup with Particle
-date: 2026-08-05
 ---
 
 ## Step 1: Plug in your device to your computer.
