@@ -1,4 +1,7 @@
-## Setting up electret sensor
+yaml---
+title: Electret setup with Particle
+date: 2026-08-05
+---
 
 ## Step 1: Plug in your device to your computer.
 If the device is configured for your local WiFi network proceed to step 2. If you need to configure your device for the local WiFi network open Chrome and go to setup.particle.io. Go through the steps there and at the end you will have the option to select a wireless network. Choose the appropriate network. Note: these devices cannot login to PAL or Eduroam.
