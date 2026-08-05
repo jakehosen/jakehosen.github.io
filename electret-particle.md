@@ -1,4 +1,5 @@
-yaml---
+yaml
+---
 title: Electret setup with Particle
 date: 2026-08-05
 ---
@@ -112,7 +113,7 @@ const unsigned long MIC_WARMUP_MS = 500;
 // ACOUSTIC CONFIGURATION
 // ============================================================================
 
-const int MIC_PIN = A4;   // free on the Argon; not used by the ESP32 interface
+const int MIC_PIN = A5;   // free on the Argon; not used by the ESP32 interface
 
 // --- Sample rate -----------------------------------------------------------
 // Nyquist = SAMPLE_RATE_HZ / 2 is your maximum analyzable frequency.
