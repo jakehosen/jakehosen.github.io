@@ -1,6 +1,6 @@
 
 ---
-Electret setup with Particle
+title: Electret setup with Particle
 date: 2026-08-05
 ---
 
