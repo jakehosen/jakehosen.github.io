@@ -1114,7 +1114,7 @@ def layout_spec(mode="raw"):
                 "legendgroup": s, "showlegend": i == 1,
                 "xaxis": "x", "yaxis": "y" if i == 1 else f"y{i}",
                 "line": {"color": SENSOR_COLOR[s], "width": 1},
-                "hovertemplate": f"R{r}{s}  %{{y:.3f}} \u00b0C<extra></extra>",
+                "hovertemplate": "R" + str(r) + s + "  %{y:.3f} \u00b0C<extra></extra>",
             })
 
     # The two flow panels carry one point per usable pulse, so their data goes
