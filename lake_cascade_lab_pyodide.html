@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lake Cascade Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: header + tab strip; each tab = inputs column (left) beside a stack of result cards (right); stacks on phones. */
+:root {
+  --bg: #f3f6f5;
+  --surface: #ffffff;
+  --ink: #13232a;
+  --muted: #586a70;
+  --line: #d4dddc;
+  --accent: #0e6c78;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0eff0;
+  --warn-bg: #fff3df;
+  --warn-ink: #7a4a00;
+  --pisc: #1b6ca8;
+  --plank: #23907f;
+  --zoo: #cc5a36;
+  --phyto: #578a37;
+  --ctl: #a3acaf;
+  --mod: #ffff66;
+  --bar-stroke: #13232a;
+  --up: #23744b;
+  --down: #b23a2e;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1618; --surface: #152024; --ink: #e2ebeb; --muted: #93a6a9; --line: #2a3a3e;
+    --accent: #5ec3ca; --accent-ink: #082024; --accent-soft: #1b3438;
+    --warn-bg: #3a2a10; --warn-ink: #f3cf8a;
+    --pisc: #6cb0e2; --plank: #52c6b5; --zoo: #f08a68; --phyto: #92c46e;
+    --ctl: #6c787b; --mod: #f2ea5a; --bar-stroke: #0a1012; --up: #6fd19b; --down: #ff8f80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1618; --surface: #152024; --ink: #e2ebeb; --muted: #93a6a9; --line: #2a3a3e;
+  --accent: #5ec3ca; --accent-ink: #082024; --accent-soft: #1b3438;
+  --warn-bg: #3a2a10; --warn-ink: #f3cf8a;
+  --pisc: #6cb0e2; --plank: #52c6b5; --zoo: #f08a68; --phyto: #92c46e;
+  --ctl: #6c787b; --mod: #f2ea5a; --bar-stroke: #0a1012; --up: #6fd19b; --down: #ff8f80;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-ui); font-size: 14px; line-height: 1.5;
+}
+.wrap {
+  max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.top { padding-block: 28px 8px; display: grid; gap: 6px; }
+h1 {
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.1; margin: 0; letter-spacing: -0.01em; text-wrap: balance;
+}
+.lede { margin: 0; max-width: 70ch; color: var(--muted); font-size: 15px; }
+.lede cite { font-style: normal; }
+
+/* Tabs */
+.tabbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  margin-top: 14px;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: thin; padding-top: 6px; }
+.tab {
+  appearance: none; border: 1px solid transparent; border-bottom: none;
+  background: transparent; color: var(--muted);
+  font: 600 14px/1.2 var(--font-ui); padding: 10px 14px 11px; cursor: pointer;
+  border-radius: 8px 8px 0 0; white-space: nowrap; display: flex; gap: 8px; align-items: baseline;
+  margin-bottom: -1px;
+}
+.tab .num { font-family: var(--font-data); font-weight: 500; font-size: 12px; opacity: .8; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] {
+  background: var(--surface); color: var(--ink); border-color: var(--line);
+  box-shadow: inset 0 3px 0 var(--accent);
+}
+.tab.settings { margin-left: auto; font-weight: 500; }
+.tab:focus-visible, button:focus-visible, input:focus-visible, label.seg:focus-within {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+main { padding-block: 20px 48px; }
+.panel[hidden] { display: none !important; }
+.scenario { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .scenario { grid-template-columns: minmax(0, 1fr); } }
+
+/* Inputs column */
+.controls {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 18px; display: grid; gap: 18px;
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px);
+}
+@media (max-width: 860px) { .controls { position: static; } }
+.controls h2 {
+  font-family: var(--font-display); font-size: 20px; font-weight: 700; margin: 0; line-height: 1.2;
+}
+.story { margin: -8px 0 0; color: var(--muted); font-size: 13.5px; }
+.group { display: grid; gap: 14px; }
+.group + .group { border-top: 1px solid var(--line); padding-top: 16px; }
+.group-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.field { display: grid; gap: 6px; }
+.field[hidden] { display: none !important; }
+.field-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.field-head label { font-weight: 600; font-size: 13.5px; }
+.num-in {
+  width: 92px; font: 500 13px var(--font-data); text-align: right;
+  padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.unit { color: var(--muted); font: 12px var(--font-data); }
+.help { font-size: 12.5px; color: var(--muted); margin: 0; }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+.seg-row { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+label.seg {
+  flex: 1 1 0; text-align: center; font-size: 13px; font-weight: 600; padding: 7px 8px; cursor: pointer;
+  color: var(--muted); background: var(--bg); position: relative;
+}
+label.seg + label.seg { border-left: 1px solid var(--line); }
+label.seg input { position: absolute; opacity: 0; pointer-events: none; }
+label.seg:has(input:checked) { background: var(--accent); color: var(--accent-ink); }
+.derived {
+  font: 12.5px var(--font-data); background: var(--accent-soft); color: var(--ink);
+  padding: 8px 10px; border-radius: 6px;
+}
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.check input { margin-top: 3px; accent-color: var(--accent); }
+.check span small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  font: 600 13px var(--font-ui); padding: 8px 12px; border-radius: 7px; cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* Results column */
+.results { display: grid; gap: 16px; min-width: 0; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
+  min-width: 0;
+}
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.card h3 { margin: 0; font-family: var(--font-display); font-size: 17px; font-weight: 700; }
+.card .sub { color: var(--muted); font-size: 12.5px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 10px; border: 1px solid var(--bar-stroke); display: inline-block; }
+.sw.line { height: 0; border: none; border-top: 2px dashed var(--ctl); width: 18px; }
+.sw.dot { height: 0; border: none; border-top: 2px dotted var(--muted); width: 18px; }
+.sw.vline { width: 0; height: 12px; border: none; border-left: 1.5px dashed var(--muted); }
+
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 620px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.chip {
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px;
+  border-left: 4px solid var(--lvl);
+}
+.chip .lvl { font-size: 12px; font-weight: 600; color: var(--muted); }
+.chip .pct { font: 600 20px var(--font-data); font-variant-numeric: tabular-nums; }
+.chip .pct.up { color: var(--up); }
+.chip .pct.down { color: var(--down); }
+.chip .abs { font: 12px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.chart { width: 100%; overflow: hidden; }
+.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 620px) { .bars { grid-template-columns: minmax(0, 1fr); } }
+.bars h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+.bars h4 small { font-weight: 400; color: var(--muted); }
+
+svg text { fill: var(--muted); font-family: var(--font-data); font-size: 10.5px; }
+svg .ptitle { fill: var(--ink); font-family: var(--font-ui); font-weight: 600; font-size: 12.5px; }
+svg .readout { fill: var(--ink); font-size: 11.5px; font-weight: 500; }
+svg .lvl-label { fill: var(--ink); font-family: var(--font-ui); font-size: 12px; font-weight: 600; }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .frame { stroke: var(--line); fill: none; }
+svg .event { stroke: var(--muted); stroke-dasharray: 4 3; stroke-width: 1.2; }
+svg .ctl-line { stroke: var(--ctl); stroke-dasharray: 5 4; stroke-width: 1.4; fill: none; }
+svg .ref { stroke: var(--muted); stroke-dasharray: 1.5 3; stroke-width: 1.6; }
+svg .cross { stroke: var(--ink); stroke-width: 1; opacity: .45; }
+svg .barval { font-size: 10px; }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+td { font-family: var(--font-data); font-size: 13px; }
+td:first-child { font-family: var(--font-ui); font-weight: 600; }
+td .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--lvl); margin-right: 7px; }
+
+.note { font-size: 13px; color: var(--muted); margin: 0; max-width: 75ch; }
+.note strong { color: var(--ink); }
+.error {
+  background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 10px 12px;
+  font-size: 13.5px; font-weight: 500;
+}
+
+/* Parameters tab */
+.params { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .params { grid-template-columns: minmax(0, 1fr); } }
+.pgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+@media (max-width: 480px) { .pgrid { grid-template-columns: minmax(0, 1fr); } }
+.pfield { display: grid; gap: 4px; }
+.pfield label { font-size: 13px; font-weight: 600; }
+.pfield .num-in { width: 100%; text-align: left; }
+.pfield small { color: var(--muted); font-size: 12px; }
+.eqs {
+  font: 13px/1.75 var(--font-data); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; margin: 0;
+}
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13px; }
+.kv dt { font-family: var(--font-data); }
+.kv dd { margin: 0; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.card p { margin: 0 0 10px; }
+.card p:last-child { margin-bottom: 0; }
+.stack { display: grid; gap: 16px; }
+footer { color: var(--muted); font-size: 12.5px; padding-block: 0 32px; }
+
+/* Python status pill */
+.pystatus {
+  justify-self: start; display: inline-flex; align-items: center; gap: 8px;
+  font: 500 12.5px var(--font-data); color: var(--muted);
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 10px;
+}
+.pystatus i { width: 8px; height: 8px; border-radius: 50%; background: var(--ctl); }
+.pystatus[data-state="ready"] i { background: var(--up); }
+.pystatus[data-state="busy"] i, .pystatus[data-state="loading"] i { background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+.pystatus[data-state="failed"] { color: var(--warn-ink); background: var(--warn-bg); }
+.pystatus[data-state="failed"] i { background: var(--down); }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .pystatus i { animation: none !important; } }
+.placeholder {
+  border: 1px dashed var(--line); border-radius: 10px; padding: 14px 16px; color: var(--muted);
+  font-size: 13.5px; background: var(--surface);
+}
+
+/* Python code tab */
+textarea.code {
+  width: 100%; min-height: 60vh; resize: vertical; tab-size: 4;
+  font: 12.5px/1.55 var(--font-data); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; white-space: pre; overflow: auto;
+}
+.codemsg { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+pre.trace { font: 12px/1.5 var(--font-data); white-space: pre-wrap; overflow-x: auto; margin: 0; }
+code { font-family: var(--font-data); font-size: .92em; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Lake Cascade Lab</h1>
+    <p class="lede">A four-level food-chain model for the trophic cascade scenarios in Emery et al. (2016). Change a driver and see how piscivores, planktivores, zooplankton and phytoplankton respond over time, compared with an untouched control lake. The model runs in Python inside your browser.</p>
+    <div class="pystatus" id="pystatus" data-state="loading" role="status"><i aria-hidden="true"></i><span>Starting Python…</span></div>
+  </header>
+</div>
+
+<div class="tabbar">
+  <div class="wrap">
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+  </div>
+</div>
+
+<main class="wrap" id="panels"></main>
+
+<footer class="wrap">
+  Based on Emery KA, Gephart JA, Wilkinson GM, Besterman AF, Pace ML (2016) Exploring trophic cascades in lake food webs with a spreadsheet model. In: Byrne L (ed) Learner-Centered Teaching Activities for Environmental and Sustainability Studies. Springer. DOI 10.1007/978-3-319-28543-6_13. Biomass units follow the spreadsheet. The equations are solved with scipy's LSODA solver in Python, running in the browser through Pyodide; output is daily. Needs an internet connection on first load.
+</footer>
+
+<!-- ========================= PYTHON MODEL ========================= -->
+<script type="text/x-python" id="pysrc">
+"""
+Lake Cascade Lab -- Python model (runs in the browser with Pyodide)
+
+The same four-level food-chain model as trophic_cascade_dynamic.py:
+
+    dA/dt = r A (1 - A/K(t)) - a A Z - f(t) A        phytoplankton
+    dZ/dt = e1 a A Z - b Z F - mZ Z                   zooplankton
+    dF/dt = e2 b Z F - c F P - mF F                   planktivores
+    dP/dt = e3 c F P - mP P - h(t) P + s(t)           piscivores
+
+Drivers: h = harvest (Scenario 1), s = stocking (Scenario 2),
+N = nutrient loading with K = K_per_N * N (Scenario 3),
+f = zebra mussel filtration (Scenario 4).
+
+Differences from the desktop script: simulate() returns plain numpy arrays
+instead of a pandas DataFrame, and plotting is done by the web page, so only
+numpy and scipy need to load in the browser.
+
+You can edit this code in the "Python code" tab and run it. The page calls
+run_scenario() and calibrated_rates() at the bottom of this file, so keep
+their names and return formats.
+"""
+
+import json
+import math
+from dataclasses import dataclass, replace, fields
+
+import numpy as np
+from scipy.integrate import solve_ivp
+
+LEVELS = ["Piscivore", "Planktivore", "Zooplankton", "Phytoplankton"]
+
+
+# -----------------------------------------------------------------------------
+# Parameters. calibrate() solves for the attack rates (a, b, c) and phyto
+# growth rate (r) that make the starting food web a steady state.
+# -----------------------------------------------------------------------------
+@dataclass
+class Params:
+    e1: float = 0.25    # zooplankton eating phytoplankton
+    e2: float = 0.05    # planktivores eating zooplankton
+    e3: float = 0.05    # piscivores eating planktivores
+    mZ: float = 0.005   # non-predation mortality (1/day)
+    mF: float = 0.001
+    mP: float = 0.002
+    h0: float = 0.001        # baseline piscivore harvest (1/day)
+    N0: float = 5.0          # baseline nutrient loading
+    K_per_N: float = 2000.0  # carrying capacity per unit loading
+    P0: float = 50.0         # spreadsheet initial food web
+    F0: float = 250.0
+    Z0: float = 1250.0
+    A0: float = 5000.0
+    a: float = math.nan
+    b: float = math.nan
+    c: float = math.nan
+    r: float = math.nan
+
+
+def calibrate(p):
+    p = replace(p)
+    for k in ("e1", "e2", "e3", "P0", "F0", "Z0", "A0", "K_per_N", "N0"):
+        if not getattr(p, k) > 0:
+            raise ValueError(f"{k} must be greater than zero.")
+    for k in ("mZ", "mF", "mP", "h0"):
+        if getattr(p, k) < 0:
+            raise ValueError(f"{k} cannot be negative.")
+    K0 = p.K_per_N * p.N0
+    if p.A0 >= K0:
+        raise ValueError("Starting phytoplankton must be below the carrying "
+                         "capacity (K per unit nutrient x baseline loading).")
+    p.c = (p.mP + p.h0) / (p.e3 * p.F0)           # from dP/dt = 0
+    p.b = (p.mF + p.c * p.P0) / (p.e2 * p.Z0)     # from dF/dt = 0
+    p.a = (p.mZ + p.b * p.F0) / (p.e1 * p.A0)     # from dZ/dt = 0
+    p.r = p.a * p.Z0 / (1 - p.A0 / K0)            # from dA/dt = 0
+    if not (p.c > 0 and p.b > 0 and p.a > 0 and p.r > 0):
+        raise ValueError("These settings give a zero feeding rate. Give "
+                         "piscivores some mortality or harvest.")
+    return p
+
+
+# -----------------------------------------------------------------------------
+# Drivers: functions of time (days)
+# -----------------------------------------------------------------------------
+def constant(value):
+    return lambda t: value
+
+
+def step_at(t0, before, after):
+    return lambda t: before if t < t0 else after
+
+
+def pulse_at(t0, baseline, peak, tau):
+    return lambda t: baseline if t < t0 else \
+        baseline + (peak - baseline) * math.exp(-(t - t0) / tau)
+
+
+def ramp_up(t_mid, max_value, width=60):
+    return lambda t: max_value / (
+        1 + math.exp(min(700.0, -(t - t_mid) / (width / 8))))
+
+
+def baseline_drivers(p):
+    return {"harvest": constant(p.h0), "stocking": constant(0.0),
+            "nutrients": constant(p.N0), "mussels": constant(0.0)}
+
+
+# -----------------------------------------------------------------------------
+# ODE system and solver
+# -----------------------------------------------------------------------------
+def food_chain_ode(t, y, p, drivers):
+    A, Z, F, P = np.maximum(y, 0)
+    h = drivers["harvest"](t)
+    s = drivers["stocking"](t)
+    K = p.K_per_N * drivers["nutrients"](t)
+    f = drivers["mussels"](t)
+
+    dA = p.r * A * (1 - A / K) - p.a * A * Z - f * A
+    dZ = p.e1 * p.a * A * Z - p.b * Z * F - p.mZ * Z
+    dF = p.e2 * p.b * Z * F - p.c * F * P - p.mF * F
+    dP = p.e3 * p.c * F * P - p.mP * P - h * P + s
+    return [dA, dZ, dF, dP]
+
+
+def simulate(drivers, years, p, dt=1.0):
+    """Daily output as numpy arrays: t (days), A, Z, F, P."""
+    dr = baseline_drivers(p)
+    if drivers:
+        dr.update(drivers)
+    times = np.arange(0, years * 365 + dt / 2, dt)
+    sol = solve_ivp(food_chain_ode, (times[0], times[-1]),
+                    [p.A0, p.Z0, p.F0, p.P0], method="LSODA", t_eval=times,
+                    args=(p, dr), max_step=1.0, rtol=1e-6, atol=1e-6)
+    if not sol.success:
+        raise RuntimeError("The solver stopped: " + sol.message)
+    A, Z, F, P = sol.y
+    return {"t": sol.t, "A": A, "Z": Z, "F": F, "P": P}
+
+
+# -----------------------------------------------------------------------------
+# Spreadsheet (static) equations
+# -----------------------------------------------------------------------------
+def spreadsheet_top_down(piscivore):
+    return {"Piscivore": piscivore, "Planktivore": (100 - piscivore) * 5,
+            "Zooplankton": piscivore * 25,
+            "Phytoplankton": (100 - piscivore) * 100}
+
+
+def spreadsheet_nutrients(N):
+    fish = -0.1097 * N**2 + 5.3709 * N - 18.382
+    return {"Piscivore": fish * 8.8, "Planktivore": fish * 43.65,
+            "Zooplankton": N * 1000 * 0.25, "Phytoplankton": N * 1000}
+
+
+# -----------------------------------------------------------------------------
+# Harvest or stocking rate whose equilibrium has a given piscivore biomass
+# -----------------------------------------------------------------------------
+def equilibrium_given_P(P, p):
+    K = p.K_per_N * p.N0
+    Z = (p.mF + p.c * P) / (p.e2 * p.b)
+    A = K * (1 - p.a * Z / p.r)
+    F = (p.e1 * p.a * A - p.mZ) / p.b
+    return {"P": P, "F": F, "Z": Z, "A": A}
+
+
+def harvest_for_piscivore(P_target, p):
+    eq = equilibrium_given_P(P_target, p)
+    h = p.e3 * p.c * eq["F"] - p.mP
+    if eq["A"] <= 0 or eq["F"] <= 0 or h < 0:
+        raise ValueError(f"No harvest rate settles the piscivores at "
+                         f"{P_target:g}. With these parameters, choose a "
+                         f"target between about 1 and {p.P0:g}.")
+    return h
+
+
+def stocking_for_piscivore(P_target, p):
+    eq = equilibrium_given_P(P_target, p)
+    s = P_target * (p.mP + p.h0 - p.e3 * p.c * eq["F"])
+    if eq["A"] <= 0 or eq["F"] <= 0 or s < 0:
+        raise ValueError(f"No stocking rate settles the piscivores at "
+                         f"{P_target:g}. Choose a target above {p.P0:g} and "
+                         "low enough that planktivores and phytoplankton "
+                         "stay above zero.")
+    return s
+
+
+# -----------------------------------------------------------------------------
+# Scenarios. Each takes the page's inputs (dict) and calibrated parameters
+# and returns (drivers, spreadsheet prediction or None, description).
+# -----------------------------------------------------------------------------
+def scenario1_overfishing(v, p):
+    t0 = v["startYear"] * 365
+    target = v["mode"] == "target"
+    harvest = harvest_for_piscivore(v["target"], p) if target else v["rate"]
+    return ({"harvest": step_at(t0, p.h0, harvest)},
+            spreadsheet_top_down(v["target"]) if target else None,
+            f"Harvest rate {p.h0:.4f} → {harvest:.4f} /day")
+
+
+def scenario2_stocking(v, p):
+    t0 = v["startYear"] * 365
+    target = v["mode"] == "target"
+    stocking = stocking_for_piscivore(v["target"], p) if target else v["rate"]
+    return ({"stocking": step_at(t0, 0.0, stocking)},
+            spreadsheet_top_down(v["target"]) if target else None,
+            f"Stocking {stocking:.3f} biomass/day")
+
+
+def scenario3_nutrients(v, p):
+    t0 = v["startYear"] * 365
+    pulse = v["event"] == "pulse"
+    N_fun = pulse_at(t0, p.N0, v["loading"], v["recovery"]) if pulse else \
+        step_at(t0, p.N0, v["loading"])
+    K_new = p.K_per_N * v["loading"]
+    return ({"nutrients": N_fun},
+            None if pulse else spreadsheet_nutrients(v["loading"]),
+            f"Carrying capacity {p.K_per_N * p.N0:,.0f} → {K_new:,.0f}"
+            + (" at peak" if pulse else ""))
+
+
+def scenario4_zebra_mussel(v, p):
+    t0 = v["startYear"] * 365
+    return ({"mussels": ramp_up(t0 + v["establish"] / 2, v["filtration"],
+                                v["establish"])},
+            None,
+            f"Filtration 0 → {v['filtration']:.3f} /day over "
+            f"~{v['establish']:.0f} days")
+
+
+SCENARIOS = {"overfishing": scenario1_overfishing,
+             "stocking": scenario2_stocking,
+             "nutrients": scenario3_nutrients,
+             "mussels": scenario4_zebra_mussel}
+
+
+# -----------------------------------------------------------------------------
+# Entry points called by the web page (JSON in, JSON out)
+# -----------------------------------------------------------------------------
+_control_cache = {}
+
+
+def _params_from_json(params_json):
+    names = {f.name for f in fields(Params)} - {"a", "b", "c", "r"}
+    raw = json.loads(params_json)
+    return calibrate(Params(**{k: float(v) for k, v in raw.items()
+                               if k in names}))
+
+
+def _control_run(p, years):
+    key = (years, tuple(vars(p).values()))
+    if key not in _control_cache:
+        _control_cache.clear()          # keep memory small
+        _control_cache[key] = simulate(None, years, p)
+    return _control_cache[key]
+
+
+def _pack(sim):
+    return {k: np.round(v, 6).tolist() for k, v in sim.items()}
+
+
+def run_scenario(scenario_id, inputs_json, params_json):
+    try:
+        p = _params_from_json(params_json)
+        v = json.loads(inputs_json)
+        drivers, sheet, derived = SCENARIOS[scenario_id](v, p)
+        sim = simulate(drivers, v["years"], p)
+        ctl = _control_run(p, v["years"])
+    except (ValueError, RuntimeError, OverflowError, ZeroDivisionError) as e:
+        return json.dumps({"error": str(e)})
+    return json.dumps({"sim": _pack(sim), "control": _pack(ctl),
+                       "spreadsheet": sheet, "derived": derived})
+
+
+def calibrated_rates(params_json):
+    try:
+        p = _params_from_json(params_json)
+    except ValueError as e:
+        return json.dumps({"error": str(e)})
+    return json.dumps({"r": p.r, "a": p.a, "b": p.b, "c": p.c,
+                       "K": p.K_per_N * p.N0})
+</script>
+
+<!-- ========================= PYODIDE WORKER ========================= -->
+<script type="text/js-worker" id="worker-src">
+// Runs Pyodide off the main thread so the page stays responsive while Python works.
+const PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
+importScripts(PYODIDE_URL + "pyodide.js");
+
+let py = null;
+let ns = null;          // namespace holding the current model code
+
+const ready = (async () => {
+  postMessage({ kind: "status", text: "Downloading Python (Pyodide)…" });
+  py = await loadPyodide({ indexURL: PYODIDE_URL });
+  postMessage({ kind: "status", text: "Loading numpy and scipy…" });
+  await py.loadPackage(["numpy", "scipy"]);
+  const v = py.runPython("import sys; sys.version.split()[0]");
+  postMessage({ kind: "status", text: "Starting the model…", python: v });
+})();
+
+// Run code in a fresh namespace and only swap it in if it succeeds,
+// so a broken edit leaves the previous model working.
+function loadCode(code) {
+  const fresh = py.globals.get("dict")();
+  py.runPython(code, { globals: fresh });
+  for (const name of ["run_scenario", "calibrated_rates"]) {
+    if (!fresh.has(name)) { fresh.destroy(); throw new Error(`The code must define ${name}().`); }
+  }
+  if (ns) ns.destroy();
+  ns = fresh;
+}
+
+self.onmessage = async (e) => {
+  const { id, type } = e.data;
+  try {
+    await ready;
+    let result = null;
+    if (type === "load") {
+      loadCode(e.data.code);
+    } else if (type === "run") {
+      const fn = ns.get("run_scenario");
+      result = fn(e.data.scenario, e.data.inputs, e.data.params);
+      fn.destroy();
+    } else if (type === "calib") {
+      const fn = ns.get("calibrated_rates");
+      result = fn(e.data.params);
+      fn.destroy();
+    }
+    postMessage({ kind: "reply", id, ok: true, result });
+  } catch (err) {
+    postMessage({ kind: "reply", id, ok: false, error: String(err && err.message || err) });
+  }
+};
+</script>
+
+<!-- ========================= INTERFACE ========================= -->
+<script>
+const LVL_VAR = { Piscivore: "--pisc", Planktivore: "--plank", Zooplankton: "--zoo", Phytoplankton: "--phyto" };
+const SVGNS = "http://www.w3.org/2000/svg";
+
+const LEVELS = ["Piscivore", "Planktivore", "Zooplankton", "Phytoplankton"];
+const KEYS = { Piscivore: "P", Planktivore: "F", Zooplankton: "Z", Phytoplankton: "A" };
+const DEFAULTS = {
+  e1: 0.25, e2: 0.05, e3: 0.05, mZ: 0.005, mF: 0.001, mP: 0.002,
+  h0: 0.001, N0: 5, K_per_N: 2000, P0: 50, F0: 250, Z0: 1250, A0: 5000
+};
+let params = { ...DEFAULTS };
+let codeVersion = 0;     // bumps when edited Python code is loaded
+
+// ---------- Python worker ----------
+const ORIGINAL_CODE = document.getElementById("pysrc").textContent.replace(/^\n/, "");
+const worker = new Worker(URL.createObjectURL(
+  new Blob([document.getElementById("worker-src").textContent], { type: "text/javascript" })));
+let seq = 0;
+const replies = new Map();
+const pyStatus = { text: "Starting Python…", ready: false, busy: 0, version: "" };
+
+worker.onmessage = (e) => {
+  const m = e.data;
+  if (m.kind === "status") {
+    pyStatus.text = m.text;
+    if (m.python) pyStatus.version = m.python;
+    renderStatus();
+  } else if (m.kind === "reply") {
+    const r = replies.get(m.id);
+    replies.delete(m.id);
+    m.ok ? r.resolve(m.result) : r.reject(new Error(m.error));
+  }
+};
+worker.onerror = (e) => {
+  pyStatus.text = "Python could not start. Check your internet connection and reload the page.";
+  pyStatus.failed = true;
+  renderStatus();
+};
+function callPy(type, data = {}) {
+  const id = ++seq;
+  pyStatus.busy++; renderStatus();
+  return new Promise((resolve, reject) => {
+    replies.set(id, { resolve, reject });
+    worker.postMessage({ id, type, ...data });
+  }).finally(() => { pyStatus.busy--; renderStatus(); });
+}
+function renderStatus() {
+  const pill = document.getElementById("pystatus");
+  if (!pill) return;
+  pill.dataset.state = pyStatus.failed ? "failed" : !pyStatus.ready ? "loading" : pyStatus.busy ? "busy" : "ready";
+  pill.querySelector("span").textContent = pyStatus.failed ? pyStatus.text
+    : !pyStatus.ready ? pyStatus.text
+    : pyStatus.busy ? `Python ${pyStatus.version} · running…`
+    : `Python ${pyStatus.version} · ready${codeVersion ? " · edited code" : ""}`;
+}
+const pyReady = callPy("load", { code: ORIGINAL_CODE }).then(() => {
+  pyStatus.ready = true; renderStatus();
+}).catch(err => {
+  pyStatus.failed = true;
+  pyStatus.text = "Python could not start: " + err.message.split("\n").slice(-2).join(" ");
+  renderStatus();
+});
+
+// ---------- formatting ----------
+function fmt(x) {
+  if (!Number.isFinite(x)) return "–";
+  const ax = Math.abs(x);
+  if (ax >= 1000) return Math.round(x).toLocaleString("en-US");
+  if (ax >= 1) return x.toLocaleString("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+  if (ax === 0) return "0";
+  return x.toPrecision(2);
+}
+function tickLabel(x) {
+  if (x >= 1e6) return (x / 1e6) + "M";
+  if (x >= 1e3) return (x / 1e3) + "K";
+  return String(+x.toPrecision(3));
+}
+function commaTick(x) { return x >= 1 ? Math.round(x).toLocaleString("en-US") : String(+x.toPrecision(2)); }
+function rateFmt(x) { return x.toFixed(4); }
+
+function logTicks(lo, hi) {
+  let ticks = [];
+  for (const subs of [[1,2,3,4,5,6,7,8,9], [1,2,3,5], [1,2,5], [1]]) {
+    ticks = [];
+    for (let k = Math.floor(Math.log10(lo)); k <= Math.ceil(Math.log10(hi)); k++)
+      for (const d of subs) { const v = d * 10 ** k; if (v >= lo * 0.9999 && v <= hi * 1.0001) ticks.push(v); }
+    if (ticks.length <= 5) break;
+  }
+  if (ticks.length === 0) ticks = [Math.sqrt(lo * hi)];
+  return ticks;
+}
+
+function el(tag, attrs = {}, parent) {
+  const isSvg = ["svg","g","line","path","rect","text","polyline"].includes(tag);
+  const n = isSvg ? document.createElementNS(SVGNS, tag) : document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "text") n.textContent = v;
+    else if (k === "html") n.innerHTML = v;
+    else n.setAttribute(k, v);
+  }
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+// ---------- scenarios ----------
+const COMMON = [
+  { id: "startYear", label: "Change begins at year", min: 0.5, max: 10, step: 0.5, value: 2, unit: "yr" },
+  { id: "years", label: "Length of run", min: 5, max: 50, step: 1, value: 20, unit: "yr" },
+  { id: "shortYear", label: "Short-term bar graph at year", min: 0, max: 50, step: 0.25, value: 3.5, unit: "yr",
+    help: "The long-term bar graph always uses the end of the run." }
+];
+
+const SCENARIOS = [
+  {
+    id: "overfishing", num: 1, tab: "Overfishing", title: "Overfishing",
+    story: "With no fishing regulations, anglers remove most of the lake's largemouth bass. Raise the harvest and follow the effect down the food chain.",
+    shortYear: 3.5, hasSpreadsheet: true,
+    inputs: [
+      { id: "mode", type: "choice", label: "Set the change by", value: "target",
+        options: [{ value: "target", label: "Piscivore target" }, { value: "rate", label: "Harvest rate" }] },
+      { id: "target", label: "Target piscivore biomass", min: 1, max: 50, step: 1, value: 10, unit: "",
+        help: "Same input as the spreadsheet (range 1–50). The model finds the harvest rate that settles at this biomass.", showIf: v => v.mode === "target" },
+      { id: "rate", label: "Harvest rate", min: 0, max: 0.01, step: 0.0001, value: 0.0034, unit: "/day",
+        help: "Share of piscivore biomass removed per day. The baseline is 0.001.", showIf: v => v.mode === "rate" }
+    ]
+  },
+  {
+    id: "stocking", num: 2, tab: "Bass stocking", title: "Bass stocking",
+    story: "The lake association stocks largemouth bass to draw anglers. Add piscivores and see how the levels below respond.",
+    shortYear: 3.5, hasSpreadsheet: true,
+    inputs: [
+      { id: "mode", type: "choice", label: "Set the change by", value: "target",
+        options: [{ value: "target", label: "Piscivore target" }, { value: "rate", label: "Stocking rate" }] },
+      { id: "target", label: "Target piscivore biomass", min: 51, max: 99, step: 1, value: 90, unit: "",
+        help: "Same input as the spreadsheet (range 50–99). The model finds the stocking rate that settles at this biomass.", showIf: v => v.mode === "target" },
+      { id: "rate", label: "Stocking rate", min: 0, max: 1, step: 0.005, value: 0.22, unit: "biomass/day",
+        help: "Piscivore biomass added per day, as a steady trickle.", showIf: v => v.mode === "rate" }
+    ]
+  },
+  {
+    id: "nutrients", num: 3, tab: "Nutrient runoff", title: "Nutrient runoff",
+    story: "Fertilizer spread before planting washes off the fields in a storm and into the lake. Raise the nutrient loading, either for good or as one runoff event.",
+    shortYear: 2.5, hasSpreadsheet: true,
+    note: "<strong>Why this differs from the spreadsheet.</strong> The spreadsheet assumes every level rises with nutrients. In a four-level food chain, predators hold phytoplankton and planktivores near their starting values, so the extra production ends up in zooplankton and piscivores (Oksanen et al. 1981). Watch the boom-and-bust swings on the way there.",
+    inputs: [
+      { id: "loading", label: "Nutrient loading", min: 5, max: 50, step: 1, value: 30, unit: "",
+        help: "Same input as the spreadsheet (range 5–50; baseline 5). Sets phytoplankton carrying capacity at 2,000 × loading." },
+      { id: "event", type: "choice", label: "Type of change", value: "sustained",
+        options: [{ value: "sustained", label: "Sustained" }, { value: "pulse", label: "One runoff event" }] },
+      { id: "recovery", label: "Flushing time", min: 10, max: 365, step: 5, value: 90, unit: "days",
+        help: "Time for the extra loading to fall by about two-thirds as the lake flushes.", showIf: v => v.event === "pulse" }
+    ]
+  },
+  {
+    id: "mussels", num: 4, tab: "Zebra mussels", title: "Zebra mussels",
+    story: "Invasive zebra mussels filter phytoplankton out of the water. Set how hard the established population filters and how quickly it builds up.",
+    shortYear: 3.5, hasSpreadsheet: false,
+    note: "<strong>No spreadsheet line here.</strong> The spreadsheet's input is phytoplankton biomass, which the model calculates rather than takes as an input. In the model, phytoplankton drop at first and then recover as zooplankton decline; the long-term losses land on zooplankton and piscivores.",
+    inputs: [
+      { id: "filtration", label: "Mussel filtration rate", min: 0, max: 0.1, step: 0.001, value: 0.04, unit: "/day",
+        help: "Share of phytoplankton removed per day once mussels are established. Above about 0.08, zooplankton cannot persist." },
+      { id: "establish", label: "Time to establish", min: 30, max: 1095, step: 15, value: 365, unit: "days",
+        help: "How long the mussel population takes to build up after it arrives." }
+    ]
+  }
+];
+
+// ---------- tabs & routing ----------
+const tabsEl = document.getElementById("tabs");
+const panelsEl = document.getElementById("panels");
+const TAB_IDS = [...SCENARIOS.map(s => s.id), "parameters", "python"];
+const state = {};      // scenario id -> input values
+const views = {};      // scenario id -> DOM refs
+
+function buildTabs() {
+  for (const s of SCENARIOS) {
+    const b = el("button", { class: "tab", role: "tab", id: `tab-${s.id}`, "aria-controls": `panel-${s.id}`, "aria-selected": "false" }, tabsEl);
+    el("span", { class: "num", text: `Scenario ${s.num}` }, b);
+    el("span", { text: s.tab }, b);
+    b.addEventListener("click", () => { location.hash = s.id; });
+  }
+  const b = el("button", { class: "tab settings", role: "tab", id: "tab-parameters", "aria-controls": "panel-parameters", "aria-selected": "false", text: "Model parameters" }, tabsEl);
+  b.addEventListener("click", () => { location.hash = "parameters"; });
+  const c = el("button", { class: "tab", role: "tab", id: "tab-python", "aria-controls": "panel-python", "aria-selected": "false", text: "Python code" }, tabsEl);
+  c.addEventListener("click", () => { location.hash = "python"; });
+}
+
+function showTab(id) {
+  if (!TAB_IDS.includes(id)) id = SCENARIOS[0].id;
+  for (const t of TAB_IDS) {
+    document.getElementById(`tab-${t}`).setAttribute("aria-selected", String(t === id));
+    document.getElementById(`panel-${t}`).hidden = t !== id;
+  }
+  if (SCENARIOS.some(s => s.id === id)) run(id);
+  if (id === "parameters") refreshCalibration();
+}
+
+// ---------- inputs ----------
+function makeRange(spec, values, onChange, parent) {
+  const f = el("div", { class: "field" }, parent);
+  const head = el("div", { class: "field-head" }, f);
+  const inputId = `${spec.scope}-${spec.id}`;
+  el("label", { for: inputId, text: spec.label }, head);
+  const right = el("span", {}, head);
+  const num = el("input", { class: "num-in", type: "number", min: spec.min, max: spec.max, step: spec.step, value: values[spec.id], id: `${inputId}-num`, "aria-label": spec.label }, right);
+  if (spec.unit) el("span", { class: "unit", text: " " + spec.unit }, right);
+  const rng = el("input", { type: "range", min: spec.min, max: spec.max, step: spec.step, value: values[spec.id], id: inputId }, f);
+  if (spec.help) el("p", { class: "help", text: spec.help }, f);
+  rng.addEventListener("input", () => { num.value = rng.value; values[spec.id] = +rng.value; onChange(); });
+  num.addEventListener("change", () => {
+    let v = +num.value;
+    if (!Number.isFinite(v)) v = values[spec.id];
+    v = Math.min(+rng.max, Math.max(+rng.min, v));
+    num.value = v; rng.value = v; values[spec.id] = v; onChange();
+  });
+  return { field: f, set(v) { num.value = v; rng.value = v; }, rng, num };
+}
+
+function makeChoice(spec, values, onChange, parent) {
+  const f = el("div", { class: "field" }, parent);
+  el("div", { class: "field-head", html: `<label>${spec.label}</label>` }, f);
+  const row = el("div", { class: "seg-row", role: "radiogroup", "aria-label": spec.label }, f);
+  const radios = [];
+  for (const o of spec.options) {
+    const lab = el("label", { class: "seg" }, row);
+    const r = el("input", { type: "radio", name: `${spec.scope}-${spec.id}`, value: o.value, id: `${spec.scope}-${spec.id}-${o.value}` }, lab);
+    if (values[spec.id] === o.value) r.checked = true;
+    lab.appendChild(document.createTextNode(o.label));
+    r.addEventListener("change", () => { if (r.checked) { values[spec.id] = o.value; onChange(); } });
+    radios.push(r);
+  }
+  return { field: f, set(v) { radios.forEach(r => (r.checked = r.value === v)); } };
+}
+
+function defaultsFor(s) {
+  const v = {};
+  for (const i of s.inputs) v[i.id] = i.value;
+  for (const c of COMMON) v[c.id] = c.value;
+  v.shortYear = s.shortYear;
+  v.showSheet = false;
+  return v;
+}
+
+// ---------- scenario panel ----------
+function buildScenarioPanel(s) {
+  const values = (state[s.id] = defaultsFor(s));
+  const panel = el("section", { class: "panel", id: `panel-${s.id}`, role: "tabpanel", "aria-labelledby": `tab-${s.id}` }, panelsEl);
+  panel.hidden = true;
+  const grid = el("div", { class: "scenario" }, panel);
+
+  // controls
+  const ctl = el("form", { class: "controls", autocomplete: "off" }, grid);
+  ctl.addEventListener("submit", e => e.preventDefault());
+  el("h2", { text: `Scenario ${s.num}: ${s.title}` }, ctl);
+  el("p", { class: "story", text: s.story }, ctl);
+
+  const onChange = () => { syncVisibility(); schedule(s.id); };
+  const g1 = el("div", { class: "group" }, ctl);
+  el("div", { class: "group-label", text: "Driver" }, g1);
+  const widgets = {};
+  for (const spec of s.inputs) {
+    const sp = { ...spec, scope: s.id };
+    widgets[spec.id] = spec.type === "choice" ? makeChoice(sp, values, onChange, g1) : makeRange(sp, values, onChange, g1);
+  }
+  const derived = el("div", { class: "derived", "aria-live": "polite" }, g1);
+
+  const g2 = el("div", { class: "group" }, ctl);
+  el("div", { class: "group-label", text: "Timing" }, g2);
+  for (const spec of COMMON) widgets[spec.id] = makeRange({ ...spec, scope: s.id }, values, onChange, g2);
+
+  const g3 = el("div", { class: "group" }, ctl);
+  if (s.hasSpreadsheet) {
+    const lab = el("label", { class: "check" }, g3);
+    const cb = el("input", { type: "checkbox", id: `${s.id}-sheet` }, lab);
+    el("span", { html: "Show spreadsheet prediction<small>Adds the static spreadsheet result for the same input, where one exists.</small>" }, lab);
+    cb.addEventListener("change", () => { values.showSheet = cb.checked; schedule(s.id); });
+    widgets.showSheet = { set(v) { cb.checked = v; } };
+  }
+  const reset = el("button", { type: "button", class: "btn", text: "Reset this scenario" }, g3);
+  reset.addEventListener("click", () => {
+    Object.assign(values, defaultsFor(s));
+    for (const [k, w] of Object.entries(widgets)) w.set(values[k]);
+    onChange();
+  });
+
+  function syncVisibility() {
+    for (const spec of s.inputs) if (spec.showIf) widgets[spec.id].field.hidden = !spec.showIf(values);
+    const maxShort = values.years;
+    const w = widgets.shortYear;
+    w.rng.max = maxShort; w.num.max = maxShort;
+    if (values.shortYear > maxShort) { values.shortYear = maxShort; w.set(maxShort); }
+  }
+  syncVisibility();
+
+  // results
+  const res = el("div", { class: "results" }, grid);
+  const err = el("div", { class: "error", role: "alert" }, res); err.hidden = true;
+  const placeholder = el("div", { class: "placeholder", role: "status",
+    text: "Running the Python model. The first run waits for Python, numpy and scipy to download, which can take 10–30 seconds; later runs take about a second." }, res);
+  placeholder.hidden = true;
+
+  const sumCard = el("div", { class: "card" }, res);
+  const sumHead = el("div", { class: "card-head" }, sumCard);
+  const sumTitle = el("h3", { text: "Change from control at end of run" }, sumHead);
+  const sumSub = el("span", { class: "sub" }, sumHead);
+  const summary = el("div", { class: "summary" }, sumCard);
+
+  const tsCard = el("div", { class: "card" }, res);
+  const tsHead = el("div", { class: "card-head" }, tsCard);
+  el("h3", { text: "Biomass over time" }, tsHead);
+  const tsLegend = el("div", { class: "legend" }, tsHead);
+  const tsChart = el("div", { class: "chart" }, tsCard);
+  el("p", { class: "note", text: "Log scale; each level has its own axis. Hover or drag across the chart to read values." }, tsCard);
+
+  const barCard = el("div", { class: "card" }, res);
+  const barHead = el("div", { class: "card-head" }, barCard);
+  el("h3", { text: "Control vs. modified" }, barHead);
+  const barLegend = el("div", { class: "legend" }, barHead);
+  const bars = el("div", { class: "bars" }, barCard);
+
+  const tblCard = el("div", { class: "card" }, res);
+  el("div", { class: "card-head", html: "<h3>End-of-run values</h3>" }, tblCard);
+  const tbl = el("div", { class: "tablewrap" }, tblCard);
+
+  if (s.note) el("p", { class: "note", html: s.note }, res);
+
+  views[s.id] = { err, placeholder, summary, sumSub, tsChart, tsLegend, bars, barLegend, tbl, derived, cards: [sumCard, tsCard, barCard, tblCard] };
+  new ResizeObserver(() => { if (!panel.hidden && views[s.id].last) { drawTimeSeries(s.id); drawBars(s.id); } }).observe(tsChart);
+}
+
+// ---------- running ----------
+const pending = new Set();
+function schedule(id) {
+  pending.add(id);
+  requestAnimationFrame(() => { for (const i of pending) run(i); pending.clear(); });
+}
+
+// Only one Python run per scenario at a time; while one runs, the newest
+// request waits and older ones are dropped.
+const runState = {};
+async function run(id) {
+  const rs = (runState[id] ||= { busy: false, queued: false });
+  if (rs.busy) { rs.queued = true; return; }
+  rs.busy = true;
+  try {
+    do { rs.queued = false; await runOnce(id); } while (rs.queued);
+  } finally { rs.busy = false; }
+}
+
+// Inputs that only change the display, not the simulation
+const DISPLAY_ONLY = ["showSheet", "shortYear"];
+
+async function runOnce(id) {
+  const v = state[id], view = views[id];
+  const modelInputs = Object.fromEntries(Object.entries(v).filter(([k]) => !DISPLAY_ONLY.includes(k)));
+  const key = JSON.stringify([modelInputs, params, codeVersion]);
+  if (view.last && view.lastKey === key) {           // redraw without rerunning Python
+    view.last.v = { ...v };
+    drawAll(id);
+    return;
+  }
+  if (!view.last) view.placeholder.hidden = false;
+  try {
+    await pyReady;
+    const out = JSON.parse(await callPy("run", {
+      scenario: id, inputs: JSON.stringify(modelInputs), params: JSON.stringify(params)
+    }));
+    if (out.error) throw new Error(out.error);
+    view.last = { sim: out.sim, ctl: out.control, built: { spreadsheet: out.spreadsheet, derived: out.derived }, v: { ...v } };
+    view.lastKey = key;
+    view.err.hidden = true;
+    view.placeholder.hidden = true;
+    view.cards.forEach(c => (c.style.opacity = 1));
+    view.derived.textContent = out.derived;
+    drawAll(id);
+  } catch (e) {
+    const lines = e.message.trim().split("\n");
+    view.err.textContent = lines.length > 2 ? "Python error: " + lines.slice(-1)[0] : e.message;
+    view.err.hidden = false;
+    view.placeholder.hidden = true;
+    view.derived.textContent = "—";
+    view.lastKey = null;
+    view.cards.forEach(c => (c.style.opacity = 0.35));
+  }
+}
+
+function drawAll(id) { drawSummary(id); drawTimeSeries(id); drawBars(id); drawTable(id); }
+
+const series = (sim, lvl) => sim[KEYS[lvl]];
+const valueAt = (sim, lvl, year) => {
+  const arr = series(sim, lvl);
+  const i = Math.min(arr.length - 1, Math.max(0, Math.round(year * 365)));
+  return arr[i];
+};
+
+// ---------- summary ----------
+function drawSummary(id) {
+  const { sim, ctl, v } = views[id].last;
+  const box = views[id].summary; box.innerHTML = "";
+  views[id].sumSub.textContent = `Year ${v.years}`;
+  for (const lvl of LEVELS) {
+    const m = valueAt(sim, lvl, v.years), c = valueAt(ctl, lvl, v.years);
+    const pct = (m / c - 1) * 100;
+    const chip = el("div", { class: "chip", style: `--lvl: var(${LVL_VAR[lvl]})` }, box);
+    el("span", { class: "lvl", text: lvl }, chip);
+    const cls = Math.abs(pct) < 0.5 ? "" : pct > 0 ? "up" : "down";
+    const arrow = cls === "up" ? "▲ " : cls === "down" ? "▼ " : "";
+    el("span", { class: `pct ${cls}`, text: m <= 0 ? "Gone" : cls === "" ? "No change" : `${arrow}${pct > 0 ? "+" : ""}${pct.toFixed(Math.abs(pct) < 10 ? 1 : 0)}%` }, chip);
+    el("span", { class: "abs", text: `${fmt(c)} → ${fmt(m)}` }, chip);
+  }
+}
+
+// ---------- time series ----------
+function drawTimeSeries(id) {
+  const view = views[id];
+  const { sim, ctl, built, v } = view.last;
+  const host = view.tsChart; host.innerHTML = "";
+  const showRef = v.showSheet && built.spreadsheet;
+
+  view.tsLegend.innerHTML = "";
+  el("span", { html: '<i class="sw line"></i>Control' }, view.tsLegend);
+  el("span", { html: '<i class="sw vline"></i>Change begins' }, view.tsLegend);
+  if (showRef) el("span", { html: '<i class="sw dot"></i>Spreadsheet' }, view.tsLegend);
+
+  const W = Math.max(300, host.clientWidth || 700);
+  const ml = 58, mr = 14, ph = W < 500 ? 96 : 112, gap = 30, top = 22, axisH = 30;
+  const H = top + LEVELS.length * (ph + gap) - gap + axisH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Biomass of each trophic level over time" }, host);
+  const x0 = ml, x1 = W - mr;
+  const n = sim.t.length, tMax = sim.t[n - 1] / 365;
+  const xs = yr => x0 + (yr / tMax) * (x1 - x0);
+
+  const panels = [];
+  LEVELS.forEach((lvl, k) => {
+    const y0 = top + k * (ph + gap), y1 = y0 + ph;
+    const ys = series(sim, lvl), yc = series(ctl, lvl);
+    let hi = -Infinity, lo = Infinity;
+    for (let i = 0; i < n; i++) { if (ys[i] > hi) hi = ys[i]; if (ys[i] > 0 && ys[i] < lo) lo = ys[i]; }
+    for (const c of [yc[0], yc[n - 1]]) { hi = Math.max(hi, c); lo = Math.min(lo, c); }
+    const ref = showRef ? built.spreadsheet[lvl] : null;
+    if (ref > 0) { hi = Math.max(hi, ref); lo = Math.min(lo, ref); }
+    if (!Number.isFinite(lo)) lo = hi / 10;
+    lo = Math.max(lo, hi * 1e-4);
+    const pad = Math.max(1.06, Math.pow(hi / lo, 0.06));
+    hi *= pad; lo /= pad;
+    if (hi / lo < 1.3) { const m = Math.sqrt(hi * lo); hi = m * 1.15; lo = m / 1.15; }
+    const L0 = Math.log10(lo), L1 = Math.log10(hi);
+    const yv = val => y1 - ((Math.log10(Math.max(val, lo)) - L0) / (L1 - L0)) * (y1 - y0);
+
+    const g = el("g", {}, svg);
+    for (const t of logTicks(lo, hi)) {
+      const y = yv(t);
+      el("line", { class: "grid", x1: x0, x2: x1, y1: y, y2: y }, g);
+      el("text", { x: x0 - 6, y: y + 3.5, "text-anchor": "end", text: commaTick(t) }, g);
+    }
+    el("rect", { class: "frame", x: x0, y: y0, width: x1 - x0, height: ph }, g);
+    el("line", { class: "event", x1: xs(v.startYear), x2: xs(v.startYear), y1: y0, y2: y1 }, g);
+    if (ref > 0) el("line", { class: "ref", x1: x0, x2: x1, y1: yv(ref), y2: yv(ref) }, g);
+
+    // control (flat at equilibrium; draw full path anyway)
+    let dc = "";
+    const stride = Math.max(1, Math.floor(n / 400));
+    for (let i = 0; i < n; i += stride) dc += (i ? "L" : "M") + xs(i / 365).toFixed(1) + "," + yv(yc[i]).toFixed(1);
+    dc += "L" + xs((n - 1) / 365).toFixed(1) + "," + yv(yc[n - 1]).toFixed(1);
+    el("path", { class: "ctl-line", d: dc }, g);
+
+    // modified: min/max envelope per pixel column keeps fast oscillations visible
+    const cols = Math.max(50, Math.round(x1 - x0));
+    let d = "";
+    for (let c = 0; c < cols; c++) {
+      const i0 = Math.floor((c / cols) * (n - 1)), i1 = Math.max(i0, Math.floor(((c + 1) / cols) * (n - 1)));
+      let mn = Infinity, mx = -Infinity;
+      for (let i = i0; i <= i1; i++) { if (ys[i] < mn) mn = ys[i]; if (ys[i] > mx) mx = ys[i]; }
+      const x = xs(i0 / 365).toFixed(1);
+      const first = ys[i0], last = ys[i1];
+      // order points so the path is continuous
+      const pts = first <= last ? [mn, mx] : [mx, mn];
+      d += (c ? "L" : "M") + x + "," + yv(pts[0]).toFixed(1) + "L" + x + "," + yv(pts[1]).toFixed(1);
+    }
+    el("path", { d, fill: "none", stroke: `var(${LVL_VAR[lvl]})`, "stroke-width": 1.8, "stroke-linejoin": "round" }, g);
+
+    el("text", { class: "ptitle", x: x0, y: y0 - 7, text: lvl }, g);
+    const ro = el("text", { class: "readout", x: x1, y: y0 - 7, "text-anchor": "end" }, g);
+    panels.push({ lvl, ys, yc, ro, yv, y0, y1 });
+  });
+
+  // x axis
+  const ay = top + LEVELS.length * (ph + gap) - gap;
+  const stepYr = tMax <= 10 ? 1 : tMax <= 25 ? 2.5 : tMax <= 50 ? 5 : 10;
+  for (let yr = 0; yr <= tMax + 1e-9; yr += stepYr) {
+    el("line", { class: "grid", x1: xs(yr), x2: xs(yr), y1: ay, y2: ay + 4 }, svg);
+    el("text", { x: xs(yr), y: ay + 16, "text-anchor": "middle", text: String(yr) }, svg);
+  }
+  el("text", { x: (x0 + x1) / 2, y: ay + 29, "text-anchor": "middle", text: "Years" }, svg);
+
+  // crosshair
+  const cross = el("line", { class: "cross", y1: top - 2, y2: ay, x1: -10, x2: -10 }, svg);
+  const setReadout = (i, hover) => {
+    const yr = i / 365;
+    for (const p of panels) {
+      const val = p.ys[i], c = p.yc[i];
+      const pct = c > 0 ? (val / c - 1) * 100 : 0;
+      const pctTxt = `${pct >= 0 ? "+" : "−"}${Math.abs(pct).toFixed(0)}%`;
+      p.ro.textContent = W < 560
+        ? `${hover ? "yr " + yr.toFixed(1) : "end"} · ${fmt(val)} · ${pctTxt}`
+        : `${hover ? "yr " + yr.toFixed(1) + " · " : "end · "}${fmt(val)}  (${pctTxt} vs control)`;
+    }
+  };
+  setReadout(n - 1, false);
+  const hit = el("rect", { x: x0, y: top - 4, width: x1 - x0, height: ay - top + 4, fill: "transparent" }, svg);
+  const move = e => {
+    const r = svg.getBoundingClientRect();
+    const sx = ((e.clientX - r.left) / r.width) * W;
+    const yr = Math.min(tMax, Math.max(0, ((sx - x0) / (x1 - x0)) * tMax));
+    const i = Math.round(yr * 365);
+    cross.setAttribute("x1", xs(yr)); cross.setAttribute("x2", xs(yr));
+    setReadout(i, true);
+  };
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("x1", -10); cross.setAttribute("x2", -10); setReadout(n - 1, false); });
+}
+
+// ---------- bars ----------
+function drawBars(id) {
+  const view = views[id];
+  const { sim, ctl, built, v } = view.last;
+  const showRef = v.showSheet && built.spreadsheet;
+  const conds = [
+    { key: "ctl", label: "Control", fill: "var(--ctl)" },
+    { key: "mod", label: "Modified", fill: "var(--mod)" }
+  ];
+  if (showRef) conds.push({ key: "ref", label: "Spreadsheet", fill: "var(--surface)" });
+
+  view.barLegend.innerHTML = "";
+  for (const c of conds) el("span", { html: `<i class="sw" style="background:${c.fill}"></i>${c.label}` }, view.barLegend);
+
+  const snaps = [
+    { title: `Year ${v.shortYear}`, sub: "short term", yr: v.shortYear },
+    { title: `Year ${v.years}`, sub: "end of run", yr: v.years }
+  ];
+  const vals = snaps.map(sn => {
+    const o = {};
+    for (const lvl of LEVELS) o[lvl] = { ctl: valueAt(ctl, lvl, sn.yr), mod: valueAt(sim, lvl, sn.yr), ref: showRef ? built.spreadsheet[lvl] : null };
+    return o;
+  });
+  let vmax = 10;
+  vals.forEach(o => LEVELS.forEach(l => conds.forEach(c => { const x = o[l][c.key]; if (x > vmax) vmax = x; })));
+  const xmaxL = Math.ceil(Math.log10(vmax * 1.02));
+
+  const host = view.bars; host.innerHTML = "";
+  const hidden = [];
+  snaps.forEach((sn, si) => {
+    const box = el("div", {}, host);
+    el("h4", { html: `${sn.title} <small>· ${sn.sub}</small>` }, box);
+    const W = Math.max(300, Math.round(box.clientWidth) || 420), ml = 94, mr = 52, rowH = conds.length === 3 ? 54 : 44, top = 6, axisH = 34;
+    const H = top + LEVELS.length * rowH + axisH;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Biomass at year ${sn.yr}, control vs modified` }, box);
+    const xs = val => ml + (Math.log10(Math.max(val, 1)) / xmaxL) * (W - ml - mr);
+    for (let k = 0; k <= xmaxL; k++) {
+      const x = xs(10 ** k);
+      el("line", { class: "grid", x1: x, x2: x, y1: top, y2: top + LEVELS.length * rowH }, svg);
+      el("text", { x, y: top + LEVELS.length * rowH + 14, "text-anchor": "middle", text: tickLabel(10 ** k) }, svg);
+    }
+    el("text", { x: (ml + W - mr) / 2, y: H - 4, "text-anchor": "middle", text: "Biomass (log scale)" }, svg);
+    LEVELS.forEach((lvl, r) => {
+      const yTop = top + r * rowH + 5, bh = (rowH - 12) / conds.length;
+      el("text", { class: "lvl-label", x: ml - 8, y: top + r * rowH + rowH / 2 + 4, "text-anchor": "end", text: lvl }, svg);
+      conds.forEach((c, ci) => {
+        const val = vals[si][lvl][c.key];
+        const y = yTop + ci * bh;
+        if (!(val > 0)) { if (c.key === "ref") hidden.push(lvl); el("text", { class: "barval", x: ml + 4, y: y + bh / 2 + 3.5, text: c.key === "ref" ? "≤ 0, not shown" : "0" }, svg); return; }
+        el("rect", { x: ml, y, width: Math.max(1, xs(val) - ml), height: bh - 2, fill: c.fill, stroke: "var(--bar-stroke)", "stroke-width": 0.6 }, svg);
+        el("text", { class: "barval", x: xs(val) + 4, y: y + bh / 2 + 3, text: fmt(val) }, svg);
+      });
+    });
+  });
+}
+
+// ---------- table ----------
+function drawTable(id) {
+  const view = views[id];
+  const { sim, ctl, built, v } = view.last;
+  const showRef = built.spreadsheet;
+  let h = "<table><thead><tr><th>Level</th><th>Control</th><th>Modified</th><th>Change</th>" + (showRef ? "<th>Spreadsheet</th>" : "") + "</tr></thead><tbody>";
+  for (const lvl of LEVELS) {
+    const c = valueAt(ctl, lvl, v.years), m = valueAt(sim, lvl, v.years);
+    const pct = (m / c - 1) * 100;
+    h += `<tr><td style="--lvl: var(${LVL_VAR[lvl]})"><span class="dot"></span>${lvl}</td><td>${fmt(c)}</td><td>${fmt(m)}</td><td>${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%</td>` +
+      (showRef ? `<td>${fmt(built.spreadsheet[lvl])}</td>` : "") + "</tr>";
+  }
+  view.tbl.innerHTML = h + "</tbody></table>";
+}
+
+// ---------- parameters tab ----------
+const PARAM_SPECS = [
+  { group: "Conversion efficiency", hint: "Consumer biomass made per unit of prey eaten.", items: [
+    { id: "e1", label: "Zooplankton eating phytoplankton", step: 0.01 },
+    { id: "e2", label: "Planktivores eating zooplankton", step: 0.01 },
+    { id: "e3", label: "Piscivores eating planktivores", step: 0.01 } ] },
+  { group: "Non-predation mortality (per day)", hint: "Set zooplankton and planktivore mortality to 0 to match the spreadsheet's Scenario 1–2 results exactly.", items: [
+    { id: "mZ", label: "Zooplankton (mZ)", step: 0.001 },
+    { id: "mF", label: "Planktivores (mF)", step: 0.001 },
+    { id: "mP", label: "Piscivores (mP)", step: 0.001 } ] },
+  { group: "Baseline drivers", hint: "Conditions in the control lake.", items: [
+    { id: "h0", label: "Piscivore harvest (per day)", step: 0.0005 },
+    { id: "N0", label: "Nutrient loading", step: 1 },
+    { id: "K_per_N", label: "Carrying capacity per unit nutrient", step: 100 } ] },
+  { group: "Starting food web", hint: "Defaults are the spreadsheet's initial biomasses. The model is calibrated so this is a steady state.", items: [
+    { id: "P0", label: "Piscivore", step: 1 },
+    { id: "F0", label: "Planktivore", step: 10 },
+    { id: "Z0", label: "Zooplankton", step: 50 },
+    { id: "A0", label: "Phytoplankton", step: 100 } ] }
+];
+
+function buildParamsPanel() {
+  const panel = el("section", { class: "panel", id: "panel-parameters", role: "tabpanel", "aria-labelledby": "tab-parameters" }, panelsEl);
+  panel.hidden = true;
+  const grid = el("div", { class: "params" }, panel);
+
+  const left = el("form", { class: "card stack", autocomplete: "off" }, grid);
+  left.addEventListener("submit", e => e.preventDefault());
+  el("div", { class: "card-head", html: "<h3>Model parameters</h3><span class='sub'>Apply to all four scenarios</span>" }, left);
+  const inputs = {};
+  for (const grp of PARAM_SPECS) {
+    const g = el("div", { class: "group" }, left);
+    el("div", { class: "group-label", text: grp.group }, g);
+    el("p", { class: "help", text: grp.hint }, g);
+    const pg = el("div", { class: "pgrid" }, g);
+    for (const it of grp.items) {
+      const f = el("div", { class: "pfield" }, pg);
+      el("label", { for: `param-${it.id}`, text: it.label }, f);
+      const inp = el("input", { class: "num-in", type: "number", step: it.step, id: `param-${it.id}`, value: params[it.id] }, f);
+      inp.addEventListener("change", () => { params[it.id] = +inp.value; recalibrate(); });
+      inputs[it.id] = inp;
+    }
+  }
+  const btns = el("div", { class: "btnrow" }, left);
+  const exact = el("button", { type: "button", class: "btn primary", text: "Match spreadsheet exactly" }, btns);
+  const reset = el("button", { type: "button", class: "btn", text: "Reset to defaults" }, btns);
+  exact.addEventListener("click", () => { params.mZ = 0; params.mF = 0; inputs.mZ.value = 0; inputs.mF.value = 0; recalibrate(); });
+  reset.addEventListener("click", () => { params = { ...DEFAULTS }; for (const k in inputs) inputs[k].value = params[k]; recalibrate(); });
+
+  const right = el("div", { class: "stack" }, grid);
+  const cal = el("div", { class: "card" }, right);
+  el("div", { class: "card-head", html: "<h3>Calibrated rates</h3><span class='sub'>Solved so the starting food web is a steady state</span>" }, cal);
+  const kv = el("dl", { class: "kv" }, cal);
+  const perr = el("div", { class: "error", role: "alert" }, cal); perr.hidden = true;
+
+  const eq = el("div", { class: "card" }, right);
+  el("div", { class: "card-head", html: "<h3>Equations</h3>" }, eq);
+  el("pre", { class: "eqs", text:
+`dA/dt = r·A·(1 − A/K) − a·A·Z − f·A        phytoplankton
+dZ/dt = e1·a·A·Z − b·Z·F − mZ·Z            zooplankton
+dF/dt = e2·b·Z·F − c·F·P − mF·F            planktivores
+dP/dt = e3·c·F·P − mP·P − h·P + s          piscivores
+
+K = carrying capacity per unit nutrient × nutrient loading
+h = harvest (Scenario 1)     s = stocking (Scenario 2)
+N = nutrient loading (Scenario 3)   f = mussel filtration (Scenario 4)` }, eq);
+  el("p", { class: "note", style: "margin-top:10px", html: "With zooplankton and planktivore mortality set to 0 and K = 10,000, the steady state of these equations is exactly the spreadsheet's top-down model: planktivore = 5(100 − P), zooplankton = 25P, phytoplankton = 100(100 − P)." }, eq);
+
+  calView = { kv, perr };
+  function recalibrate() { refreshCalibration(); }
+}
+
+// Calibrated rates come from Python's calibrate()
+let calView = null;
+async function refreshCalibration() {
+  const { kv, perr } = calView;
+  try {
+    await pyReady;
+    const out = JSON.parse(await callPy("calib", { params: JSON.stringify(params) }));
+    if (out.error) throw new Error(out.error);
+    kv.innerHTML = "";
+    perr.hidden = true;
+    const rows = [
+      ["r", out.r, "phytoplankton growth rate (/day)"],
+      ["a", out.a, "zooplankton feeding on phytoplankton"],
+      ["b", out.b, "planktivores feeding on zooplankton"],
+      ["c", out.c, "piscivores feeding on planktivores"],
+      ["K", out.K, "baseline carrying capacity"]
+    ];
+    for (const [k, val, desc] of rows) {
+      el("dt", { text: k }, kv);
+      el("dd", { html: `${val < 0.01 ? val.toExponential(3) : +val.toPrecision(4)} <span class="help">${desc}</span>` }, kv);
+    }
+  } catch (e) {
+    kv.innerHTML = "";
+    perr.textContent = e.message.split("\n").slice(-1)[0];
+    perr.hidden = false;
+  }
+}
+
+// ---------- Python code tab ----------
+function buildPythonPanel() {
+  const panel = el("section", { class: "panel", id: "panel-python", role: "tabpanel", "aria-labelledby": "tab-python" }, panelsEl);
+  panel.hidden = true;
+  const card = el("div", { class: "card stack" }, panel);
+  el("div", { class: "card-head", html: "<h3>Python model</h3><span class='sub'>This is the code that produces every result on the page</span>" }, card);
+  el("p", { class: "note", html: "Edit the model and choose <strong>Run edited code</strong>; all four scenarios then use your version. If the code fails, the previous version keeps running. Keep the functions <code>run_scenario()</code> and <code>calibrated_rates()</code>, which the page calls." }, card);
+  const ta = el("textarea", { class: "code", id: "py-code", spellcheck: "false", autocapitalize: "off", autocomplete: "off", "aria-label": "Python model code" }, card);
+  ta.value = ORIGINAL_CODE;
+  ta.addEventListener("keydown", e => {            // Tab inserts 4 spaces
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      const { selectionStart: a, selectionEnd: b } = ta;
+      ta.setRangeText("    ", a, b, "end");
+    }
+  });
+  const btns = el("div", { class: "btnrow" }, card);
+  const runBtn = el("button", { type: "button", class: "btn primary", text: "Run edited code" }, btns);
+  const restore = el("button", { type: "button", class: "btn", text: "Restore original" }, btns);
+  const save = el("button", { type: "button", class: "btn", text: "Save as .py" }, btns);
+  const msg = el("div", { class: "codemsg", role: "status" }, card);
+  const errBox = el("pre", { class: "error trace" }, card); errBox.hidden = true;
+
+  async function load(code, label) {
+    msg.textContent = "Loading code into Python…"; errBox.hidden = true;
+    try {
+      await pyReady;
+      await callPy("load", { code });
+      codeVersion++;
+      if (code === ORIGINAL_CODE) codeVersion = 0;
+      renderStatus();
+      for (const s of SCENARIOS) views[s.id].lastKey = null;
+      msg.textContent = label;
+    } catch (e) {
+      msg.textContent = "The code did not run, so the page is still using the previous version.";
+      errBox.textContent = e.message;
+      errBox.hidden = false;
+    }
+  }
+  runBtn.addEventListener("click", () => load(ta.value, "Loaded. The scenario tabs now use your edited model."));
+  restore.addEventListener("click", () => { ta.value = ORIGINAL_CODE; load(ORIGINAL_CODE, "Original model restored."); });
+  save.addEventListener("click", () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([ta.value], { type: "text/x-python" }));
+    a.download = "lake_cascade_model.py";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+}
+
+// ---------- boot ----------
+buildTabs();
+SCENARIOS.forEach(buildScenarioPanel);
+buildParamsPanel();
+buildPythonPanel();
+renderStatus();
+const route = () => showTab((location.hash || "").replace("#", ""));
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
